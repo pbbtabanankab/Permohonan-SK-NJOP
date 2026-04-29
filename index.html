@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Permohonan SK NJOP</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--card:#fff;--border:#e2e0d8;--border2:#c8c5bb;
+  --text:#1a1a18;--muted:#6b6960;--hint:#9b9890;
+  --blue:#185FA5;--blue-bg:#E6F1FB;--blue-dark:#0C447C;
+  --green:#3B6D11;--green-bg:#EAF3DE;
+  --amber:#854F0B;--amber-bg:#FAEEDA;
+  --red:#A32D2D;--red-bg:#FCEBEB;--red-border:#F7C1C1;
+  --radius:8px;--radius-lg:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.app-header{background:var(--card);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.logo h1{font-size:14px;font-weight:600}
+.logo p{font-size:11px;color:var(--muted)}
+.tab-switcher{display:flex;background:var(--bg);border-radius:var(--radius);padding:3px;gap:3px;border:1px solid var(--border)}
+.tab-btn{padding:5px 16px;border:none;background:transparent;border-radius:6px;font-size:13px;cursor:pointer;color:var(--muted);font-family:inherit}
+.tab-btn.active{background:var(--card);color:var(--text);font-weight:600;border:1px solid var(--border)}
+.main{max-width:820px;margin:1.5rem auto;padding:0 1rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1rem}
+.card-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.span-full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.field input,.field textarea{border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:13px;background:var(--card);color:var(--text);font-family:inherit;outline:none;transition:border .15s}
+.field input:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.1)}
+.field input[readonly]{background:var(--bg);color:var(--muted)}
+.field textarea{resize:vertical;min-height:66px;line-height:1.5}
+.btn{padding:8px 18px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--bg)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-success{background:var(--green);border-color:var(--green);color:#fff}
+.btn-success:hover{background:#27500A}
+.btn-print{background:var(--amber);border-color:var(--amber);color:#fff}
+.btn-print:hover{background:#633806}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.alert{padding:10px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:1rem;border:1px solid;display:flex;align-items:center;gap:8px;line-height:1.5}
+.alert-success{background:var(--green-bg);color:var(--green);border-color:#C0DD97}
+.alert-info{background:var(--blue-bg);color:var(--blue);border-color:#B5D4F4}
+.alert-danger{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.alert-loading{background:#F1EFE8;color:var(--muted);border-color:var(--border)}
+.spinner{width:14px;height:14px;border:2px solid rgba(0,0,0,.12);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.receipt-box{background:var(--bg);border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:1.5rem;text-align:center;margin:1rem 0}
+.receipt-no{font-size:28px;font-weight:700;letter-spacing:.08em;color:var(--blue);margin:8px 0;font-family:'Courier New',monospace}
+.receipt-label{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.1em}
+.receipt-info{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.8}
+.njop-panel{background:var(--bg);border-radius:var(--radius-lg);padding:1rem;margin-top:.5rem}
+.njop-result{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center;margin-top:.75rem;background:var(--blue-bg);border-radius:var(--radius);padding:.875rem}
+.njop-input-wrap{position:relative;display:flex;align-items:center}
+.njop-input-wrap .rp-prefix{position:absolute;left:10px;font-size:13px;color:var(--muted);pointer-events:none;user-select:none;z-index:1}
+.njop-input-wrap input{padding-left:30px !important;text-align:right;font-variant-numeric:tabular-nums}
+/* NOP field - monospace agar angka rapi */
+#ws-nop,#p-nop{font-family:'Courier New',monospace;letter-spacing:.04em}
+.njop-col-label{font-size:10px;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.njop-col-val{font-size:13px;font-weight:600;color:var(--blue-dark)}
+.njop-total-val{font-size:17px;font-weight:700;color:var(--blue-dark)}
+.njop-sep{font-size:18px;color:var(--blue);text-align:center}
+.terbilang-box{margin-top:.75rem;padding:.75rem 1rem;background:var(--card);border-radius:var(--radius);border:1px solid var(--border)}
+.terbilang-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.terbilang-val{font-size:13px;color:var(--text);font-style:italic;line-height:1.5}
+.search-row{display:flex;gap:8px}
+.search-row input{flex:1;border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:13px;outline:none;font-family:inherit;background:var(--card);color:var(--text);transition:border .15s}
+.search-row input:focus{border-color:var(--blue)}
+.list-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);margin-top:8px;cursor:pointer;transition:background .12s}
+.list-item:hover{background:var(--bg);border-color:var(--border2)}
+.list-item-main{font-size:13px;font-weight:600}
+.list-item-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border-radius:var(--radius-lg);padding:1.5rem;width:480px;max-width:95vw;border:1px solid var(--border)}
+.modal h2{font-size:15px;font-weight:600;margin-bottom:.75rem}
+.modal p{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:1rem}
+.step-box{background:var(--bg);border-radius:var(--radius);padding:.875rem;font-size:12px;line-height:1.9;margin-bottom:1rem;border:1px solid var(--border);color:var(--muted)}
+.step-box strong{color:var(--text)}
+
+/* ── Toast notification ── */
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);
+  opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);
+  background:#1a1a18;color:#fff;border-radius:var(--radius-lg);
+  padding:14px 24px;font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:999;min-width:280px;max-width:420px;
+  pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast-icon{font-size:20px;flex-shrink:0}
+.toast-body{flex:1;line-height:1.4}
+.toast-title{font-weight:700;margin-bottom:2px}
+.toast-sub{font-size:11px;opacity:.75}
+.login-modal{background:var(--card);border-radius:var(--radius-lg);padding:2rem;width:360px;max-width:95vw;border:1px solid var(--border);box-shadow:0 8px 40px rgba(0,0,0,.25)}
+.login-modal .lock-icon{width:48px;height:48px;background:var(--blue-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:22px}
+.login-modal h2{font-size:15px;font-weight:600;text-align:center;margin-bottom:.25rem}
+.login-modal p{font-size:12px;color:var(--muted);text-align:center;margin-bottom:1.25rem}
+.pin-input{text-align:center;letter-spacing:.3em;font-size:18px;font-weight:600;padding:10px;border-radius:var(--radius);border:2px solid var(--border);width:100%;outline:none;transition:border .15s;font-family:monospace}
+.pin-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.1)}
+.admin-chip{display:inline-flex;align-items:center;gap:6px;background:var(--amber-bg);color:var(--amber);border:1px solid #e5c88a;border-radius:20px;padding:3px 10px 3px 6px;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s}
+.admin-chip:hover{background:#f5e2b8}
+.admin-chip .dot{width:6px;height:6px;background:var(--amber);border-radius:50%}
+.logout-btn{background:none;border:none;color:var(--red);font-size:11px;cursor:pointer;font-family:inherit;padding:2px 4px;text-decoration:underline;margin-left:4px}
+/* Guncang input jika salah PIN */
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.shake{animation:shake .4s ease}
+@media print{
+  .app-header,.tab-switcher,.no-print{display:none!important}
+  body{background:#fff;margin:0;padding:0}
+  .main{max-width:100%;margin:0;padding:0}
+  .card{border:none!important;margin:0;padding:0}
+  #print-area{display:block!important}
+  #main-app{display:none!important}
+  /* Hilangkan wrapper abu & shadow saat cetak, margin diatur @page */
+  #print-content > div > div:first-child { box-shadow:none!important;border:none!important;padding:0!important;width:100%!important; }
+  #print-content > div { background:transparent!important;padding:0!important; }
+  @page{size:215mm 330mm;margin:15mm 20mm 15mm 25mm}
+}
+#print-area{display:none}
+</style>
+</head>
+<body>
+<div id="main-app">
+
+<div class="app-header">
+  <div class="logo">
+    <h1>Sistem Permohonan SK NJOP</h1>
+    <p>Pelayanan PBB-P2 Kabupaten Tabanan</p>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="api-status" style="font-size:11px;color:var(--muted)"></span>
+    <!-- Indikator admin — tampil hanya saat login -->
+    <div id="admin-chip" style="display:none">
+      <span class="admin-chip" onclick="confirmLogout()">
+        <span class="dot"></span>
+        <span id="chip-label">Admin</span>
+      </span>
+    </div>
+    <button class="btn btn-sm no-print" onclick="openConfig()" id="btn-config" style="display:none">⚙ API</button>
+    <div class="tab-switcher">
+      <button class="tab-btn active" onclick="switchTab('beranda')" id="tab-beranda">🏠 Beranda</button>
+      <button class="tab-btn" onclick="switchTab('pemohon')" id="tab-pemohon">Formulir Permohonan</button>
+      <button class="tab-btn" onclick="switchTab('status')" id="tab-status">Cek Status</button>
+      <button class="tab-btn" id="tab-petugas">Ruang Kerja Petugas</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BERANDA ===== -->
+<div id="view-beranda" class="main">
+  <div class="card" style="text-align:center;padding:2rem 1.5rem">
+    <div style="margin-bottom:.75rem">
+      <img src="https://lh3.googleusercontent.com/d/1KsP6VSELFzpfvkaz4rHUEvrFkJGLoBIm"
+        style="width:80px;height:80px;object-fit:contain"
+        onerror="this.outerHTML='<div style=\'font-size:36px\'>🏛️</div>'">
+    </div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:4px">Sistem Permohonan SK NJOP</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Badan Keuangan Daerah Kabupaten Tabanan</div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" style="padding:10px 24px;font-size:13px" onclick="switchTab('pemohon')">
+        📝 Ajukan Permohonan
+      </button>
+      <button class="btn" style="padding:10px 24px;font-size:13px" onclick="switchTab('status')">
+        🔍 Cek Status Permohonan
+      </button>
+    </div>
+  </div>
+
+  <!-- Tata Cara -->
+  <div class="card">
+    <div class="card-title">📋 Tata Cara Pengajuan SK NJOP</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+      <div style="background:var(--bg);border-radius:var(--radius);padding:1rem;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:.6rem">
+          <div style="width:28px;height:28px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">1</div>
+          <div style="font-size:13px;font-weight:600">Siapkan Dokumen</div>
+        </div>
+        <ul style="font-size:12px;color:var(--muted);line-height:2;padding-left:1rem">
+          <li>KTP Pemohon / kuasa</li>
+          <li>Sertifikat tanah (SHM/NIB)</li>
+          <li>Bukti Lunas PBB-P2</li>
+          <li>Dokumen pendukung lainnya</li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);border-radius:var(--radius);padding:1rem;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:.6rem">
+          <div style="width:28px;height:28px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">2</div>
+          <div style="font-size:13px;font-weight:600">Isi Formulir Online</div>
+        </div>
+        <ul style="font-size:12px;color:var(--muted);line-height:2;padding-left:1rem">
+          <li>Klik tab <strong>Formulir Permohonan</strong></li>
+          <li>Isi semua kolom bertanda <strong>*</strong></li>
+          <li>Pastikan seluruh data benar</li>
+          <li>Klik <strong>Ajukan Permohonan</strong></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);border-radius:var(--radius);padding:1rem;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:.6rem">
+          <div style="width:28px;height:28px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">3</div>
+          <div style="font-size:13px;font-weight:600">Proses SK NJOP</div>
+        </div>
+        <ul style="font-size:12px;color:var(--muted);line-height:2;padding-left:1rem">
+          <li>Setelah submit, catat / cetak <strong>No Formulir</strong></li>
+          <li>No Formulir digunakan untuk cek status</li>
+          <li>Bawa No Formulir dan berkas ke kantor</li>
+	  <li>SK NJOP diproses setelah berkas benar & lengkap</li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);border-radius:var(--radius);padding:1rem;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:.6rem">
+          <div style="width:28px;height:28px;background:var(--green);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">4</div>
+          <div style="font-size:13px;font-weight:600">Ambil SK NJOP</div>
+        </div>
+        <ul style="font-size:12px;color:var(--muted);line-height:2;padding-left:1rem">
+          <li>Cek status lewat tab <strong>Cek Status</strong></li>
+          <li>Jika status <strong>Selesai</strong>, SK siap diambil</li>
+          <li>Datang ke kantor untuk ambil SK</li>
+          <li>Proses ±1–3 hari kerja</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Info Kontak -->
+  <div class="card">
+    <div class="card-title">📞 Informasi Kantor</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:18px">📍</span>
+        <div><div style="font-weight:600;margin-bottom:2px">Alamat</div><div style="color:var(--muted);line-height:1.6">Badan Keuangan Daerah<br>Jl. Pahlawan No. 19<br>Tabanan, Bali</div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:18px">📞</span>
+        <div><div style="font-weight:600;margin-bottom:2px">Telepon</div><div style="color:var(--muted);line-height:1.6">(0361) 811312</div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:18px">🕐</span>
+        <div><div style="font-weight:600;margin-bottom:2px">Jam Pelayanan</div><div style="color:var(--muted);line-height:1.6">Senin – Kamis: 08.00 – 15.00<br>Jumat: 08.00 – 13.00</div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:18px">⏱️</span>
+        <div><div style="font-weight:600;margin-bottom:2px">Estimasi Proses</div><div style="color:var(--muted);line-height:1.6">1 – 3 hari kerja<br>setelah berkas lengkap</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CEK STATUS ===== -->
+<div id="view-status" class="main" style="display:none">
+  <div id="alert-s"></div>
+  <div class="card">
+    <div class="card-title">🔍 Cek Status Permohonan</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">
+      Masukkan <strong>No Formulir</strong> yang Anda terima saat pengajuan untuk mengetahui status permohonan SK NJOP Anda.
+    </p>
+    <div class="search-row">
+      <input id="status-no" placeholder="Contoh: NJOP-202406xxxx"
+        style="font-family:'Courier New',monospace;letter-spacing:.04em"
+        onkeydown="if(event.key==='Enter')cekStatus()">
+      <button class="btn btn-primary" onclick="cekStatus()">Cek Status</button>
+    </div>
+  </div>
+
+  <div id="status-result" style="display:none">
+    <div class="card">
+      <div class="card-title">Hasil Pengecekan <span class="badge" id="status-badge">—</span></div>
+      <!-- Baris status besar -->
+      <div style="display:flex;align-items:center;gap:16px;padding:1rem;background:var(--bg);border-radius:var(--radius);margin-bottom:1rem;border:1px solid var(--border)">
+        <div id="status-icon" style="font-size:36px;flex-shrink:0">⏳</div>
+        <div>
+          <div id="status-title" style="font-size:15px;font-weight:700;margin-bottom:2px">—</div>
+          <div id="status-desc" style="font-size:12px;color:var(--muted);line-height:1.6">—</div>
+        </div>
+      </div>
+      <!-- Detail -->
+      <table style="width:100%;font-size:13px;border-collapse:collapse">
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 4px;color:var(--muted);width:40%">No Formulir</td>
+          <td style="padding:8px 4px;font-weight:600;font-family:'Courier New',monospace" id="st-no">—</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 4px;color:var(--muted)">Nama Pemohon</td>
+          <td style="padding:8px 4px" id="st-nama">—</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 4px;color:var(--muted)">NOP</td>
+          <td style="padding:8px 4px;font-family:'Courier New',monospace" id="st-nop">—</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 4px;color:var(--muted)">Nama Wajib Pajak</td>
+          <td style="padding:8px 4px" id="st-wp">—</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 4px;color:var(--muted)">Tanggal Pengajuan</td>
+          <td style="padding:8px 4px" id="st-tgl">—</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 4px;color:var(--muted)">No Surat SK</td>
+          <td style="padding:8px 4px;font-weight:600" id="st-nosurat">Belum diterbitkan</td>
+        </tr>
+      </table>
+      <p style="font-size:11px;color:var(--hint);margin-top:1rem;line-height:1.6">
+        * Jika status <strong>Selesai</strong>, silakan datang ke kantor dengan membawa No Formulir dan dokumen asli untuk mengambil SK NJOP Anda.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PEMOHON ===== -->
+<div id="view-pemohon" class="main">
+  <div id="alert-p"></div>
+  <div id="form-wrap">
+    <div class="card">
+      <div class="card-title">Data Pemohon <span class="badge badge-blue">WP / Notaris</span></div>
+      <div class="form-grid">
+        <div class="field"><label>Nama Pemohon *</label><input id="p-nama" placeholder="Nama lengkap pemohon"></div>
+        <div class="field"><label>No HP *</label><input id="p-hp" placeholder="08xxxxxxxxxx"></div>
+        <div class="field span-full"><label>Alamat Pemohon *</label><textarea id="p-alamat" placeholder="Alamat lengkap pemohon"></textarea></div>
+        <div class="field span-full"><label>Nama Notaris (jika diwakilkan)</label><input id="p-notaris" placeholder="Nama notaris — kosongkan jika langsung"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Data Objek Pajak <span class="badge badge-blue">NOP &amp; Wajib Pajak</span></div>
+      <div class="form-grid">
+        <div class="field"><label>NOP *</label><input id="p-nop" placeholder="00.00.000.000.000.0000.0" inputmode="numeric" maxlength="24" oninput="fmtNopInput(this)"></div>
+        <div class="field"><label>Nama Wajib Pajak *</label><input id="p-namawp" placeholder="Sesuai SPPT PBB"></div>
+        <div class="field span-full"><label>Alamat Wajib Pajak *</label><textarea id="p-alamatwp" placeholder="Alamat sesuai SPPT PBB"></textarea></div>
+        <div class="field span-full"><label>Alamat / Letak Objek Pajak *</label><textarea id="p-alamatop" placeholder="Input dari Jalan, Desa, Kecamatan"></textarea></div>
+        <div class="field"><label>Luas Bumi (m²) *</label><input id="p-luasbumi" type="number" placeholder="0" min="0"></div>
+        <div class="field"><label>Luas Bangunan (m²)</label><input id="p-luasbangunan" type="number" placeholder="0" min="0"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Data Sertifikat <span class="badge badge-amber">SHM / NIB</span></div>
+      <div class="form-grid">
+        <div class="field"><label>No SHM / NIB *</label><input id="p-noshm" placeholder="Nomor sertifikat"></div>
+        <div class="field"><label>Nama pada Sertifikat *</label><input id="p-namasrt" placeholder="Nama pemilik sertifikat"></div>
+        <div class="field"><label>Luas Sertifikat (m²) *</label><input id="p-luassrt" type="number" placeholder="0" min="0"></div>
+      </div>
+    </div>
+    <div class="btn-row no-print">
+      <button class="btn btn-primary" id="btn-submit-p" onclick="submitPemohon()">Ajukan Permohonan →</button>
+    </div>
+  </div>
+
+  <div id="receipt-wrap" style="display:none">
+    <div class="card">
+      <div class="card-title">Permohonan Berhasil Diajukan <span class="badge badge-green">Tersimpan</span></div>
+      <div class="receipt-box">
+        <div class="receipt-label">Nomor Formulir</div>
+        <div class="receipt-no" id="rcpt-no">—</div>
+        <div class="receipt-info" id="rcpt-info"></div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);line-height:1.7;margin-top:.75rem">Harap <strong>cetak atau foto</strong> nomor formulir ini dan bawa bersama kelengkapan berkas ke kantor pelayanan.</p>
+      <div class="btn-row no-print">
+        <button class="btn btn-print" onclick="printReceipt()">Cetak Tanda Terima</button>
+        <button class="btn btn-primary" onclick="resetForm()">Permohonan Baru</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PETUGAS ===== -->
+<div id="view-petugas" class="main" style="display:none">
+  <div id="alert-t"></div>
+  <div class="card">
+    <div class="card-title">Cari Permohonan <span class="badge badge-amber">Ruang Kerja Petugas</span></div>
+    <div class="search-row">
+      <input id="search-no" placeholder="Ketik No Formulir (NJOP-202406xxxx)" onkeydown="if(event.key==='Enter')searchFormulir()">
+      <button class="btn btn-primary" onclick="searchFormulir()">Cari</button>
+      <button class="btn" onclick="loadAllList()">Lihat Semua</button>
+    </div>
+    <div id="list-wrap"></div>
+  </div>
+
+  <div id="ws-wrap" style="display:none">
+    <div class="card">
+      <div class="card-title">Data Pemohon <span class="badge badge-blue" id="ws-badge">—</span></div>
+      <div class="form-grid">
+        <div class="field"><label>Nama Pemohon</label><input id="ws-nama" readonly></div>
+        <div class="field"><label>No HP</label><input id="ws-hp" readonly></div>
+        <div class="field span-full"><label>Alamat</label><textarea id="ws-alamat" readonly></textarea></div>
+        <div class="field span-full"><label>Notaris</label><input id="ws-notaris" readonly></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Data Objek Pajak <small style="font-weight:400;color:var(--muted);font-size:11px;text-transform:none;letter-spacing:0">(dapat diedit jika ada koreksi)</small></div>
+      <div class="form-grid">
+        <div class="field"><label>NOP</label><input id="ws-nop" readonly></div>
+        <div class="field"><label>Nama Wajib Pajak</label><input id="ws-namawp"></div>
+        <div class="field span-full"><label>Alamat WP</label><textarea id="ws-alamatwp"></textarea></div>
+        <div class="field span-full"><label>Alamat / Letak Objek Pajak</label><textarea id="ws-alamatop" placeholder="Contoh: Dauh Peken, Tabanan"></textarea></div>
+        <div class="field"><label>Luas Bumi (m²)</label><input id="ws-luasbumi" type="number" oninput="hitungNJOP()"></div>
+        <div class="field"><label>Luas Bangunan (m²)</label><input id="ws-luasbangunan" type="number" oninput="hitungNJOP()"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Data Sertifikat</div>
+      <div class="form-grid">
+        <div class="field"><label>No SHM / NIB</label><input id="ws-noshm" readonly></div>
+        <div class="field"><label>Nama Sertifikat</label><input id="ws-namasrt"></div>
+        <div class="field"><label>Luas Sertifikat (m²)</label><input id="ws-luassrt" type="number"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Penetapan NJOP <span class="badge badge-amber">Input Petugas</span></div>
+      <div class="njop-panel">
+        <div class="form-grid-3">
+          <div class="field">
+            <label>NJOP Bumi (Rp/m²) *</label>
+            <div class="njop-input-wrap">
+              <span class="rp-prefix">Rp</span>
+              <input id="ws-njopbumi" placeholder="0" inputmode="numeric"
+                oninput="fmtNjopInput(this)" onblur="fmtNjopInput(this)">
+            </div>
+          </div>
+          <div class="field">
+            <label>NJOP Bangunan (Rp/m²)</label>
+            <div class="njop-input-wrap">
+              <span class="rp-prefix">Rp</span>
+              <input id="ws-njopbangunan" placeholder="0" inputmode="numeric"
+                oninput="fmtNjopInput(this)" onblur="fmtNjopInput(this)">
+            </div>
+          </div>
+          <div class="field">
+            <label>No Surat SK *</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input id="ws-nosurat" placeholder="Nomor surat SK NJOP" style="flex:1">
+              <button class="btn btn-sm" onclick="autoNoSurat()" title="Generate otomatis" style="flex-shrink:0;white-space:nowrap">
+                ⚡ Auto
+              </button>
+            </div>
+            <div id="info-no-terakhir" style="font-size:11px;color:var(--muted);margin-top:3px;min-height:16px"></div>
+          </div>
+        </div>
+        <div class="njop-result">
+          <div class="njop-col"><div class="njop-col-label">NJOP Bumi</div><div class="njop-col-val" id="lbl-b">Rp 0</div></div>
+          <div class="njop-sep">+</div>
+          <div class="njop-col"><div class="njop-col-label">NJOP Bangunan</div><div class="njop-col-val" id="lbl-g">Rp 0</div></div>
+          <div class="njop-sep">=</div>
+          <div class="njop-col"><div class="njop-col-label">NJOP Keseluruhan</div><div class="njop-total-val" id="lbl-tot">Rp 0</div></div>
+        </div>
+        <div class="terbilang-box">
+          <div class="terbilang-label">Terbilang</div>
+          <div class="terbilang-val" id="lbl-terb">Nol Rupiah</div>
+        </div>
+      </div>
+      <div class="card-title" style="margin-top:1.25rem">
+        Data Pejabat Penandatangan
+        <span style="margin-left:auto;font-size:10px;font-weight:400;color:var(--green);text-transform:none;letter-spacing:0">
+          ✓ Terisi otomatis
+        </span>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Nama Pejabat</label><input id="ws-pejabat" readonly style="background:var(--bg);color:var(--muted)"></div>
+        <div class="field"><label>NIP</label><input id="ws-nip" readonly style="background:var(--bg);color:var(--muted)"></div>
+        <div class="field"><label>Pangkat / Golongan</label><input id="ws-pangkat" readonly style="background:var(--bg);color:var(--muted)"></div>
+        <div class="field"><label>Jabatan</label><input id="ws-jabatan" readonly style="background:var(--bg);color:var(--muted)"></div>
+      </div>
+    </div>
+    <div class="btn-row no-print">
+      <button class="btn btn-print" onclick="printSK()">Cetak SK NJOP</button>
+      <button class="btn btn-success" id="btn-save" onclick="submitPetugas()">Simpan Data</button>
+    </div>
+  </div>
+</div>
+</div><!-- end main-app -->
+
+<!-- ===== MODAL LOGIN ADMIN ===== -->
+<div class="modal-bg" id="login-modal">
+  <div class="login-modal">
+    <div class="lock-icon">🔒</div>
+    <h2>Akses Ruang Kerja Petugas</h2>
+    <p>Masukkan PIN Admin untuk melanjutkan.<br>Hubungi administrator jika lupa PIN.</p>
+    <div class="field" style="margin-bottom:.75rem">
+      <input class="pin-input" id="pin-input" type="password" maxlength="20"
+        placeholder="••••••" autocomplete="off"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="pin-error" style="font-size:12px;color:var(--red);text-align:center;min-height:18px;margin-bottom:.75rem"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" style="flex:1" onclick="closeLogin()">Batal</button>
+      <button class="btn btn-primary" style="flex:1" onclick="doLogin()">Masuk</button>
+    </div>
+    <div style="text-align:center;margin-top:1rem">
+      <button style="background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;font-family:inherit;text-decoration:underline" onclick="showChangePIN()">Ganti PIN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL GANTI PIN ===== -->
+<div class="modal-bg" id="changepin-modal">
+  <div class="login-modal">
+    <div class="lock-icon">🔑</div>
+    <h2>Ganti PIN Admin</h2>
+    <p>Masukkan PIN lama lalu PIN baru dua kali untuk konfirmasi.</p>
+    <div class="field" style="margin-bottom:.6rem">
+      <label>PIN Lama</label>
+      <input class="pin-input" id="cp-old" type="password" maxlength="20" placeholder="••••••" autocomplete="off">
+    </div>
+    <div class="field" style="margin-bottom:.6rem">
+      <label>PIN Baru</label>
+      <input class="pin-input" id="cp-new" type="password" maxlength="20" placeholder="••••••" autocomplete="off">
+    </div>
+    <div class="field" style="margin-bottom:.75rem">
+      <label>Konfirmasi PIN Baru</label>
+      <input class="pin-input" id="cp-confirm" type="password" maxlength="20" placeholder="••••••" autocomplete="off"
+        onkeydown="if(event.key==='Enter')doChangePIN()">
+    </div>
+    <div id="cp-error" style="font-size:12px;color:var(--red);text-align:center;min-height:18px;margin-bottom:.75rem"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" style="flex:1" onclick="closeChangePIN()">Batal</button>
+      <button class="btn btn-primary" style="flex:1" onclick="doChangePIN()">Simpan PIN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CONFIG ===== -->
+<div class="modal-bg" id="config-modal">
+  <div class="modal">
+    <h2>Konfigurasi API URL</h2>
+    <p>Paste URL Google Apps Script Web App Anda di bawah ini. URL akan disimpan di browser.</p>
+    <div class="step-box">
+      <strong>Cara mendapatkan URL:</strong><br>
+      1. Apps Script → Deploy → <strong>New deployment</strong><br>
+      2. Type: <strong>Web App</strong><br>
+      3. Execute as: <strong>Me</strong> | Who has access: <strong>Anyone</strong><br>
+      4. Klik Deploy → izinkan akses → <strong>Copy URL</strong>
+    </div>
+    <div class="field" style="margin-bottom:1rem">
+      <label>Web App URL</label>
+      <input id="cfg-url" placeholder="https://script.google.com/macros/s/XXXXX/exec" style="font-size:12px">
+    </div>
+    <div id="test-result" style="margin-bottom:.75rem"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-sm" id="btn-test" onclick="testAPI()">Test Koneksi</button>
+      <button class="btn btn-sm" onclick="closeConfig()">Batal</button>
+      <button class="btn btn-primary btn-sm" onclick="saveConfig()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST NOTIFICATION ===== -->
+<div class="toast" id="toast-notif">
+  <div class="toast-icon" id="toast-icon">✅</div>
+  <div class="toast-body">
+    <div class="toast-title" id="toast-title">Berhasil</div>
+    <div class="toast-sub"  id="toast-sub"></div>
+  </div>
+</div>
+
+<!-- ===== PRINT ===== -->
+<div id="print-area"><div id="print-content"></div></div>
+
+<script>
+// ─── JSONP helper ──────────────────────────────────────────
+// Karena Apps Script tidak mendukung CORS preflight untuk POST,
+// kita kirim SEMUA request via GET dengan callback JSONP.
+// Data besar di-encode sebagai parameter ?data=...
+var _cbIdx = 0;
+
+function jsonp(url, params, callback) {
+  var cbName = '__njop_cb_' + (++_cbIdx) + '_' + Date.now();
+  params.callback = cbName;
+
+  var qs = Object.keys(params).map(function(k){
+    return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+  }).join('&');
+
+  window[cbName] = function(data) {
+    delete window[cbName];
+    document.head.removeChild(script);
+    callback(null, data);
+  };
+
+  var script = document.createElement('script');
+  script.src = url + '?' + qs;
+  script.onerror = function() {
+    delete window[cbName];
+    document.head.removeChild(script);
+    callback(new Error('Network error atau URL salah'));
+  };
+
+  // Timeout 15 detik
+  var timer = setTimeout(function(){
+    if(window[cbName]){
+      delete window[cbName];
+      try{ document.head.removeChild(script); }catch(e){}
+      callback(new Error('Timeout — server tidak merespons'));
+    }
+  }, 15000);
+
+  // Bersihkan timer saat callback dipanggil
+  var origCb = window[cbName];
+  window[cbName] = function(data){
+    clearTimeout(timer);
+    origCb(data);
+  };
+
+  document.head.appendChild(script);
+}
+
+// Wrapper: kembalikan Promise
+function apiCall(action, extraParams) {
+  return new Promise(function(resolve, reject) {
+    if (!isConfigured()) { reject(new Error('API URL belum dikonfigurasi')); return; }
+    var params = Object.assign({ action: action }, extraParams || {});
+    jsonp(API_URL, params, function(err, data) {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  });
+}
+
+// ─── Config ───────────────────────────────────────────────
+// ─── API URL — HARDCODED PERMANEN ─────────────────────────
+// Ganti nilai di bawah ini dengan URL Apps Script Anda.
+// Setelah diisi dan file di-upload ke hosting, tidak perlu diubah lagi.
+var API_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbwazCYE8h-aA4Y668iOoO2sfFxKGKTise4fdoxq66eO5fZKY7JXXM8NKIBinYZys53y/exec';
+
+// localStorage hanya dipakai jika admin ingin override sementara
+var API_URL = localStorage.getItem('njop_api_url') || API_URL_DEFAULT;
+
+function updateStatus() {
+  var el = document.getElementById('api-status');
+  var configured = API_URL && API_URL !== 'PASTE_URL_APPS_SCRIPT_DISINI';
+  el.textContent = configured ? '● Terhubung' : '○ Belum dikonfigurasi';
+  el.style.color  = configured ? 'var(--green)' : 'var(--red)';
+}
+
+function isConfigured(){
+  return API_URL && API_URL !== 'PASTE_URL_APPS_SCRIPT_DISINI';
+}
+
+function openConfig() {
+  document.getElementById('cfg-url').value = API_URL;
+  document.getElementById('test-result').innerHTML = '';
+  document.getElementById('config-modal').classList.add('open');
+}
+function closeConfig() { document.getElementById('config-modal').classList.remove('open'); }
+
+function saveConfig() {
+  var url = document.getElementById('cfg-url').value.trim();
+  if (!url) { alert('URL tidak boleh kosong'); return; }
+  API_URL = url;
+  localStorage.setItem('njop_api_url', API_URL);
+  updateStatus();
+  closeConfig();
+  showAlert('p', 'success', 'API URL berhasil disimpan.');
+}
+
+function testAPI() {
+  var url = document.getElementById('cfg-url').value.trim();
+  if (!url) { document.getElementById('test-result').innerHTML = '<div class="alert alert-danger" style="margin:0;font-size:12px">Isi URL terlebih dahulu.</div>'; return; }
+  var btn = document.getElementById('btn-test');
+  btn.disabled = true; btn.textContent = 'Testing...';
+  document.getElementById('test-result').innerHTML = '<div class="alert alert-loading" style="margin:0;font-size:12px"><span class="spinner"></span>&nbsp;Menghubungkan...</div>';
+
+  // Sementara ganti API_URL untuk test
+  var savedUrl = API_URL;
+  API_URL = url;
+  apiCall('getAll').then(function(res) {
+    API_URL = savedUrl;
+    document.getElementById('test-result').innerHTML = '<div class="alert alert-success" style="margin:0;font-size:12px">Koneksi berhasil! Ditemukan ' + (res.rows ? res.rows.length : 0) + ' data.</div>';
+    btn.disabled = false; btn.textContent = 'Test Koneksi';
+  }).catch(function(e) {
+    API_URL = savedUrl;
+    document.getElementById('test-result').innerHTML = '<div class="alert alert-danger" style="margin:0;font-size:12px">Gagal: ' + e.message + '</div>';
+    btn.disabled = false; btn.textContent = 'Test Koneksi';
+  });
+}
+
+// ─── Auth — PIN diverifikasi SERVER SIDE via Apps Script ──────
+// Tidak ada PIN tersimpan di kode HTML ini.
+// Frontend hanya kirim PIN ke server, server yang memutuskan benar/salah.
+var _isAdmin = false;
+
+function requireLogin(){
+  if(_isAdmin){ switchTab('petugas'); return; }
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('login-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('pin-input').focus(); }, 120);
+}
+
+function closeLogin(){
+  document.getElementById('login-modal').classList.remove('open');
+}
+
+function doLogin(){
+  var pin = document.getElementById('pin-input').value;
+  if(!pin){ document.getElementById('pin-error').textContent = 'PIN tidak boleh kosong.'; return; }
+
+  var btn = document.querySelector('#login-modal .btn-primary');
+  btn.disabled = true; btn.textContent = 'Memverifikasi...';
+  document.getElementById('pin-error').textContent = '';
+
+  apiCall('verifyPin', { pin: pin })
+    .then(function(res){
+      if(res.ok){
+        _isAdmin = true;
+        closeLogin();
+        setAdminUI(true);
+        switchTab('petugas');
+      } else {
+        document.getElementById('pin-error').textContent = res.message || 'PIN salah.';
+        var inp = document.getElementById('pin-input');
+        inp.classList.add('shake'); inp.value = '';
+        setTimeout(function(){ inp.classList.remove('shake'); inp.focus(); }, 420);
+      }
+    })
+    .catch(function(){ document.getElementById('pin-error').textContent = 'Gagal terhubung ke server.'; })
+    .finally(function(){ btn.disabled = false; btn.textContent = 'Masuk'; });
+}
+
+function setAdminUI(on){
+  document.getElementById('admin-chip').style.display = on ? 'flex' : 'none';
+  document.getElementById('btn-config').style.display  = on ? 'inline-flex' : 'none';
+  document.getElementById('chip-label').textContent = 'Admin — Logout';
+  var tb = document.getElementById('tab-petugas');
+  var tbNew = tb.cloneNode(true);
+  tb.parentNode.replaceChild(tbNew, tb);
+  document.getElementById('tab-petugas').addEventListener('click', on ? function(){ switchTab('petugas'); } : requireLogin);
+  if(on){ loadPejabatDefault(); loadNoSuratTerakhir(); }
+}
+
+function confirmLogout(){
+  if(confirm('Keluar dari sesi Admin?\nAnda perlu login ulang untuk akses Ruang Kerja Petugas.')) doLogout();
+}
+
+function doLogout(){
+  _isAdmin = false;
+  setAdminUI(false);
+  switchTab('pemohon');
+  document.getElementById('ws-wrap').style.display = 'none';
+  document.getElementById('list-wrap').innerHTML = '';
+}
+
+// ─── Ganti PIN — dikirim ke server, tidak disimpan di browser ─
+function showChangePIN(){
+  closeLogin();
+  ['cp-old','cp-new','cp-confirm'].forEach(function(id){ s(id,''); });
+  document.getElementById('cp-error').textContent = '';
+  document.getElementById('changepin-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('cp-old').focus(); }, 120);
+}
+
+function closeChangePIN(){
+  document.getElementById('changepin-modal').classList.remove('open');
+}
+
+function doChangePIN(){
+  var oldPin  = document.getElementById('cp-old').value;
+  var newPin  = document.getElementById('cp-new').value;
+  var konfirm = document.getElementById('cp-confirm').value;
+  var errEl   = document.getElementById('cp-error');
+
+  if(!oldPin || !newPin || !konfirm){ errEl.textContent = 'Semua field wajib diisi.'; return; }
+  if(newPin.length < 4){ errEl.textContent = 'PIN baru minimal 4 karakter.'; return; }
+  if(newPin !== konfirm){ errEl.textContent = 'Konfirmasi PIN tidak cocok.'; return; }
+
+  var btn = document.querySelector('#changepin-modal .btn-primary');
+  btn.disabled = true; btn.textContent = 'Menyimpan...';
+  errEl.textContent = '';
+
+  apiCall('changePin', { oldPin: oldPin, newPin: newPin })
+    .then(function(res){
+      if(res.ok){
+        closeChangePIN();
+        alert('PIN berhasil diubah. Gunakan PIN baru untuk login berikutnya.');
+      } else {
+        errEl.textContent = res.message || 'Gagal mengubah PIN.';
+        if(res.message && res.message.indexOf('lama') > -1){
+          var el = document.getElementById('cp-old');
+          el.classList.add('shake'); el.value='';
+          setTimeout(function(){ el.classList.remove('shake'); el.focus(); }, 420);
+        }
+      }
+    })
+    .catch(function(){ errEl.textContent = 'Gagal terhubung ke server.'; })
+    .finally(function(){ btn.disabled=false; btn.textContent='Simpan PIN'; });
+}
+
+// ─── Tab ──────────────────────────────────────────────────
+function switchTab(t) {
+  var tabs = ['beranda','pemohon','status','petugas'];
+  tabs.forEach(function(id){
+    var view = document.getElementById('view-'+id);
+    var btn  = document.getElementById('tab-'+id);
+    if(view) view.style.display = (id===t) ? 'block' : 'none';
+    if(btn)  btn.className = 'tab-btn' + (id===t ? ' active' : '');
+  });
+}
+
+// ─── Cek Status Permohonan (publik) ───────────────────────
+function cekStatus(){
+  if(!isConfigured()){ showAlert('s','danger','Sistem belum terhubung ke database. Hubungi administrator.'); return; }
+  var no = document.getElementById('status-no').value.trim().toUpperCase();
+  if(!no){ showAlert('s','danger','Masukkan No Formulir terlebih dahulu.'); return; }
+  showAlert('s','loading','<span class="spinner"></span>&nbsp;Memeriksa status...');
+  document.getElementById('status-result').style.display = 'none';
+
+  apiCall('getOne', {no: no})
+    .then(function(res){
+      clearAlert('s');
+      if(!res.ok){ showAlert('s','danger','No Formulir <strong>'+no+'</strong> tidak ditemukan. Pastikan penulisan sudah benar.'); return; }
+      var d = res.row;
+      var selesai = d['Status'] === 'Selesai';
+
+      // Badge
+      var badge = document.getElementById('status-badge');
+      badge.textContent = d['Status'] || 'Menunggu';
+      badge.className   = 'badge ' + (selesai ? 'badge-green' : 'badge-amber');
+
+      // Icon & deskripsi
+      document.getElementById('status-icon').textContent  = selesai ? '✅' : '⏳';
+      document.getElementById('status-title').textContent = selesai ? 'SK NJOP Sudah Selesai' : 'Permohonan Sedang Diproses';
+      document.getElementById('status-desc').textContent  = selesai
+        ? 'SK NJOP Anda telah diterbitkan. Silakan datang ke kantor untuk pengambilan SK.'
+        : 'Permohonan Anda telah diterima dan sedang dalam antrian proses. Estimasi 1–3 hari kerja.';
+
+      // Detail tabel
+      document.getElementById('st-no').textContent     = d['No Formulir']  || '-';
+      document.getElementById('st-nama').textContent   = d['Nama Pemohon'] || '-';
+      document.getElementById('st-nop').textContent    = d['NOP']          || '-';
+      document.getElementById('st-wp').textContent     = d['Nama WP']      || '-';
+      document.getElementById('st-tgl').textContent    = d['Timestamp']    || '-';
+      document.getElementById('st-nosurat').textContent= selesai ? (d['No Surat'] || '-') : 'Belum diterbitkan';
+
+      document.getElementById('status-result').style.display = 'block';
+    })
+    .catch(function(e){ showAlert('s','danger','Gagal terhubung ke server: '+e.message); });
+}
+
+// ─── Alert ────────────────────────────────────────────────
+function showAlert(z, type, msg) {
+  document.getElementById('alert-'+z).innerHTML = '<div class="alert alert-'+type+'">' + msg + '</div>';
+}
+function clearAlert(z) { document.getElementById('alert-'+z).innerHTML = ''; }
+
+// ─── Field helpers ────────────────────────────────────────
+function g(id) { return (document.getElementById(id)||{}).value || ''; }
+function s(id, v) { var el = document.getElementById(id); if(el) el.value = v || ''; }
+
+// ─── Pejabat Default — HARDCODED, selalu sama ─────────────
+var PEJABAT = {
+  pejabat : 'I Kadek Suardana Dwi Putra, S.IP, M.M.',
+  nip      : '19880612 200701 1 001',
+  pangkat  : 'Pembina (IV/a)',
+  jabatan  : 'Kepala Bidang PBB-P2 & BPHTB'
+};
+
+function loadPejabatDefault(){
+  s('ws-pejabat', PEJABAT.pejabat);
+  s('ws-nip',     PEJABAT.nip);
+  s('ws-pangkat', PEJABAT.pangkat);
+  s('ws-jabatan', PEJABAT.jabatan);
+}
+
+// savePejabatDefault tidak dipakai lagi (data hardcoded)
+function savePejabatDefault(){}
+
+// ─── Format NJOP input (tampil ribuan, nilai murni untuk hitung) ──
+// Input tetap type=text, angka aslinya disimpan di data-raw
+function fmtNjopInput(el){
+  // Ambil hanya digit
+  var raw = el.value.replace(/\D/g,'');
+  el.dataset.raw = raw;  // simpan nilai murni
+  // Tampilkan dengan pemisah ribuan
+  el.value = raw ? parseInt(raw,10).toLocaleString('id-ID') : '';
+  hitungNJOP();
+}
+
+// Baca nilai murni dari input NJOP
+function getNjopVal(id){
+  var el = document.getElementById(id);
+  if(!el) return 0;
+  // Prioritas: data-raw, fallback strip titik dari value
+  var raw = el.dataset.raw || el.value.replace(/\./g,'').replace(/,/g,'');
+  return parseFloat(raw) || 0;
+}
+
+// Isi input NJOP dari nilai numerik (saat load dari Sheets)
+function setNjopVal(id, val){
+  var el = document.getElementById(id);
+  if(!el) return;
+  var num = parseFloat(String(val).replace(/\D/g,'')) || 0;
+  el.dataset.raw = num ? String(num) : '';
+  el.value = num ? num.toLocaleString('id-ID') : '';
+}
+
+// ─── Format NOP input otomatis: 00.00.000.000.000.0000.0 ──
+// Pola: 2.2.3.3.3.4.1 = 18 digit
+function fmtNopInput(el){
+  var digits = el.value.replace(/\D/g,'').slice(0,18);
+  var parts = [];
+  var cuts = [2,2,3,3,3,4,1];
+  var idx = 0;
+  for(var i=0;i<cuts.length;i++){
+    if(idx >= digits.length) break;
+    parts.push(digits.slice(idx, idx+cuts[i]));
+    idx += cuts[i];
+  }
+  el.value = parts.join('.');
+}
+
+// ─── No Formulir ──────────────────────────────────────────
+function genNo() {
+  var d = new Date();
+  var mm = String(d.getMonth()+1).padStart(2,'0');
+  var rnd = String(Math.floor(Math.random()*9000)+1000);
+  return 'NJOP-' + d.getFullYear() + mm + rnd;
+}
+
+// ─── Submit Pemohon ───────────────────────────────────────
+function submitPemohon() {
+  if (!isConfigured()) { showAlert('p','danger','Sistem belum terhubung ke database. Hubungi administrator.'); return; }
+  var req = ['p-nama','p-hp','p-alamat','p-nop','p-namawp','p-alamatwp','p-alamatop','p-luasbumi','p-noshm','p-namasrt','p-luassrt'];
+  if (req.some(function(id){ return !g(id).trim(); })) {
+    showAlert('p','danger','Harap lengkapi semua field yang bertanda *'); return;
+  }
+  var btn = document.getElementById('btn-submit-p');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Menyimpan...';
+
+  var no  = genNo();
+  var tgl = new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
+  var payload = {
+    'No Formulir': no, 'Nama Pemohon': g('p-nama'), 'No HP': g('p-hp'),
+    'Alamat': g('p-alamat'), 'Notaris': g('p-notaris'), 'NOP': g('p-nop'),
+    'Nama WP': g('p-namawp'), 'Alamat WP': g('p-alamatwp'),
+    'Luas Bumi': g('p-luasbumi'), 'Luas Bangunan': g('p-luasbangunan'),
+    'NJOP Bumi':'', 'NJOP Bangunan':'', 'NJOP Keseluruhan':'', 'Terbilang':'',
+    'No SHM/NIB': g('p-noshm'), 'Nama Sertifikat': g('p-namasrt'),
+    'Luas Sertifikat': g('p-luassrt'), 'No Surat':'',
+    'Status':'Menunggu', 'Timestamp': tgl,
+    'Nama Pejabat':'', 'NIP':'', 'Jabatan':'', 'Pangkat':'',
+    'alamatop': g('p-alamatop')
+  };
+
+  // Kirim via JSONP dengan data di-encode
+  apiCall('insert', { data: JSON.stringify(payload) })
+    .then(function(res) {
+      if (res.ok) {
+        document.getElementById('rcpt-no').textContent = no;
+        document.getElementById('rcpt-info').innerHTML =
+          'Atas nama: <strong>' + g('p-nama') + '</strong><br>NOP: ' + g('p-nop') + '<br>Tanggal: ' + tgl;
+        document.getElementById('form-wrap').style.display = 'none';
+        document.getElementById('receipt-wrap').style.display = 'block';
+        // simpan untuk cetak
+        window._lastReceipt = { no:no, nama:g('p-nama'), hp:g('p-hp'), notaris:g('p-notaris'),
+          nop:g('p-nop'), namawp:g('p-namawp'), noshm:g('p-noshm'), tgl:tgl };
+        clearAlert('p');
+      } else {
+        showAlert('p','danger', res.message || 'Terjadi kesalahan pada server.');
+      }
+    })
+    .catch(function(e) {
+      showAlert('p','danger','Gagal: ' + e.message + '. Pastikan URL sudah benar dan App Script sudah di-deploy ulang dengan "Anyone" access.');
+    })
+    .finally(function() {
+      btn.disabled = false; btn.innerHTML = 'Ajukan Permohonan →';
+    });
+}
+
+function resetForm() {
+  ['p-nama','p-hp','p-alamat','p-notaris','p-nop','p-namawp','p-alamatwp','p-alamatop',
+   'p-luasbumi','p-luasbangunan','p-noshm','p-namasrt','p-luassrt'].forEach(function(id){ s(id,''); });
+  document.getElementById('form-wrap').style.display = 'block';
+  document.getElementById('receipt-wrap').style.display = 'none';
+}
+
+// ─── Petugas: Search ──────────────────────────────────────
+function searchFormulir() {
+  var no = document.getElementById('search-no').value.trim().toUpperCase();
+  if (!no) { showAlert('t','danger','Masukkan No Formulir.'); return; }
+  showAlert('t','loading','<span class="spinner"></span>&nbsp;Mencari...');
+  apiCall('getOne', { no: no })
+    .then(function(res) {
+      clearAlert('t');
+      if (res.ok) { loadWorkspace(res.row); document.getElementById('list-wrap').innerHTML=''; }
+      else showAlert('t','danger', res.message);
+    })
+    .catch(function(e){ showAlert('t','danger','Gagal: ' + e.message); });
+}
+
+function loadAllList() {
+  showAlert('t','loading','<span class="spinner"></span>&nbsp;Memuat data...');
+  apiCall('getAll')
+    .then(function(res) {
+      clearAlert('t');
+      if (!res.ok) { showAlert('t','danger', res.message); return; }
+      var rows = res.rows;
+      if (!rows.length) { showAlert('t','info','Belum ada permohonan.'); return; }
+      var html = '<div style="margin-top:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">' + rows.length + ' Permohonan</div>';
+      rows.forEach(function(d) {
+        var sc = d['Status']==='Selesai' ? 'badge-green' : 'badge-amber';
+        var enc = encodeURIComponent(JSON.stringify(d));
+        html += '<div class="list-item" onclick="loadWorkspace(JSON.parse(decodeURIComponent(\'' + enc + '\')))">'
+          + '<div><div class="list-item-main">' + d['No Formulir'] + '</div>'
+          + '<div class="list-item-sub">' + d['Nama Pemohon'] + ' &nbsp;|&nbsp; NOP: ' + d['NOP'] + ' &nbsp;|&nbsp; ' + d['Timestamp'] + '</div></div>'
+          + '<span class="badge ' + sc + '">' + d['Status'] + '</span></div>';
+      });
+      html += '</div>';
+      document.getElementById('list-wrap').innerHTML = html;
+      document.getElementById('ws-wrap').style.display = 'none';
+    })
+    .catch(function(e){ showAlert('t','danger','Gagal: ' + e.message); });
+}
+
+// ─── Load Workspace ───────────────────────────────────────
+var _cur = null;
+function loadWorkspace(d) {
+  _cur = d;
+  document.getElementById('ws-wrap').style.display = 'block';
+  document.getElementById('ws-badge').textContent = d['No Formulir'];
+  s('ws-nama',d['Nama Pemohon']); s('ws-hp',d['No HP']);
+  s('ws-alamat',d['Alamat']); s('ws-notaris',d['Notaris']);
+  s('ws-nop',d['NOP']); s('ws-namawp',d['Nama WP']);
+  s('ws-alamatwp',d['Alamat WP']); s('ws-alamatop',d['alamatop']||'');
+  s('ws-luasbumi',d['Luas Bumi']);
+  s('ws-luasbangunan',d['Luas Bangunan']); s('ws-noshm',d['No SHM/NIB']);
+  s('ws-namasrt',d['Nama Sertifikat']); s('ws-luassrt',d['Luas Sertifikat']);
+  s('ws-nosurat',d['No Surat']);
+  // NJOP — format ribuan
+  setNjopVal('ws-njopbumi',    d['NJOP Bumi']);
+  setNjopVal('ws-njopbangunan',d['NJOP Bangunan']);
+  // Pejabat — selalu hardcoded, tidak dari Sheets
+  loadPejabatDefault();
+  hitungNJOP();
+  document.getElementById('search-no').value = d['No Formulir'];
+  loadNoSuratTerakhir();  // refresh info no surat terakhir
+  document.getElementById('ws-wrap').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── NJOP Calc ────────────────────────────────────────────
+function hitungNJOP() {
+  var lb=parseFloat(g('ws-luasbumi'))||0, lg=parseFloat(g('ws-luasbangunan'))||0;
+  var nb=getNjopVal('ws-njopbumi'), ng=getNjopVal('ws-njopbangunan');
+  var tB=lb*nb, tG=lg*ng, tot=tB+tG;
+  document.getElementById('lbl-b').textContent   = 'Rp ' + fmtRp(tB);
+  document.getElementById('lbl-g').textContent   = 'Rp ' + fmtRp(tG);
+  document.getElementById('lbl-tot').textContent = 'Rp ' + fmtRp(tot);
+  document.getElementById('lbl-terb').textContent = uc(terbilang(tot)) + ' Rupiah';
+}
+
+function fmtRp(n){ return Math.round(n).toLocaleString('id-ID'); }
+function uc(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+// ─── Toast Notification ───────────────────────────────────
+var _toastTimer = null;
+function showToast(icon, title, sub, duration){
+  var el = document.getElementById('toast-notif');
+  document.getElementById('toast-icon').textContent  = icon  || '✅';
+  document.getElementById('toast-title').textContent = title || 'Berhasil';
+  document.getElementById('toast-sub').textContent   = sub   || '';
+  el.className = 'toast show';
+  if(_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){ el.className = 'toast'; }, duration || 3500);
+}
+
+// ─── Auto Generate No Surat ───────────────────────────────
+// Format: {urutan}/{tahun} → ambil dari No Surat terakhir di Sheets
+var _lastNoSurat = null; // cache
+
+function loadNoSuratTerakhir(){
+  if(!isConfigured()) return;
+  apiCall('getAll')
+    .then(function(res){
+      if(!res.ok || !res.rows || !res.rows.length) return;
+      // Ambil semua No Surat yang sudah ada, cari nomor urutan terbesar
+      var max = 0;
+      var tahun = new Date().getFullYear();
+      res.rows.forEach(function(row){
+        var ns = row['No Surat'] || '';
+        // Format angka di depan slash: "2658/..." atau "900.1.13.1/2658/..."
+        var m = ns.match(/\/(\d+)\//);
+        if(m){
+          var n = parseInt(m[1]);
+          if(!isNaN(n) && n > max) max = n;
+        }
+      });
+      _lastNoSurat = max;
+      var infoEl = document.getElementById('info-no-terakhir');
+      if(infoEl){
+        infoEl.textContent = max > 0
+          ? 'No Surat terakhir: ' + max + ' — berikutnya: ' + (max+1)
+          : 'Belum ada No Surat tersimpan';
+      }
+    })
+    .catch(function(){});
+}
+
+function autoNoSurat(){
+  var tahun = new Date().getFullYear();
+  var next  = (_lastNoSurat || 0) + 1;
+  // Format lengkap: 900.1.13.1/{next}/PBB/Bakeuda
+  // Field No Surat hanya menyimpan angka urutannya saja (sesuai format buildSKHTML)
+  s('ws-nosurat', String(next));
+  document.getElementById('info-no-terakhir').textContent =
+    'No Surat diisi otomatis: ' + next + ' (edit jika perlu)';
+}
+function submitPetugas() {
+  if (!_cur) { showAlert('t','danger','Pilih permohonan terlebih dahulu.'); return; }
+  if (!getNjopVal('ws-njopbumi')||!g('ws-nosurat')) { showAlert('t','danger','NJOP Bumi dan No Surat wajib diisi.'); return; }
+  var lb=parseFloat(g('ws-luasbumi'))||0, lg=parseFloat(g('ws-luasbangunan'))||0;
+  var nb=getNjopVal('ws-njopbumi'), ng=getNjopVal('ws-njopbangunan');
+  var tB=lb*nb, tG=lg*ng, tot=tB+tG;
+  var btn = document.getElementById('btn-save');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Menyimpan...';
+  var payload = {
+    'No Formulir': _cur['No Formulir'],
+    'Nama WP': g('ws-namawp'), 'Alamat WP': g('ws-alamatwp'),
+    'alamatop': g('ws-alamatop'),
+    'Luas Bumi': g('ws-luasbumi'), 'Luas Bangunan': g('ws-luasbangunan'),
+    'Nama Sertifikat': g('ws-namasrt'), 'Luas Sertifikat': g('ws-luassrt'),
+    'NJOP Bumi': nb, 'NJOP Bangunan': ng,
+    'NJOP Keseluruhan': tot,
+    'Terbilang': uc(terbilang(tot)) + ' Rupiah',
+    'No Surat': g('ws-nosurat'), 'Status':'Selesai',
+    'Nama Pejabat': g('ws-pejabat'), 'NIP': g('ws-nip'), 'Jabatan': g('ws-jabatan'), 'Pangkat': g('ws-pangkat')
+  };
+  apiCall('update', { data: JSON.stringify(payload) })
+    .then(function(res){
+      if(res.ok){
+        // Toast sukses di tengah bawah layar — langsung terlihat
+        showToast('✅', 'Data Berhasil Disimpan',
+          'No Formulir ' + _cur['No Formulir'] + ' · SK siap dicetak', 4000);
+        // Update no surat terakhir di cache
+        var noVal = parseInt(g('ws-nosurat'));
+        if(!isNaN(noVal) && noVal > (_lastNoSurat||0)){
+          _lastNoSurat = noVal;
+          var infoEl = document.getElementById('info-no-terakhir');
+          if(infoEl) infoEl.textContent = 'No Surat terakhir: ' + noVal + ' — berikutnya: ' + (noVal+1);
+        }
+      } else {
+        showToast('❌', 'Gagal Menyimpan', res.message || 'Terjadi kesalahan', 4500);
+      }
+    })
+    .catch(function(e){
+      showToast('❌', 'Gagal Terhubung', e.message, 4500);
+    })
+    .finally(function(){ btn.disabled=false; btn.innerHTML='Simpan Data'; });
+}
+
+// ─── Print ────────────────────────────────────────────────
+function printReceipt(){
+  var d = window._lastReceipt || {};
+  document.getElementById('print-content').innerHTML = buildReceiptHTML(d);
+  window.print();
+}
+
+function buildReceiptHTML(d){
+  return '<div style="font-family:serif;max-width:380px;margin:0 auto;padding:24px;border:1px solid #ccc;border-radius:8px">'
+    +'<div style="text-align:center;margin-bottom:16px">'
+    +'<div style="font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:1px">Tanda Terima Permohonan</div>'
+    +'<div style="font-size:11px;color:#888;margin-top:4px">SK NJOP — Pelayanan Pajak Daerah</div></div>'
+    +'<div style="border-top:1px dashed #ccc;border-bottom:1px dashed #ccc;padding:12px 0;text-align:center;margin:12px 0">'
+    +'<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:2px">No Formulir</div>'
+    +'<div style="font-size:24px;font-weight:bold;letter-spacing:3px;margin-top:6px;font-family:monospace">'+d.no+'</div></div>'
+    +'<table style="width:100%;font-size:12px;border-collapse:collapse">'
+    +r2('Nama Pemohon',d.nama||'')+r2('No HP',d.hp||'')+r2('Notaris',d.notaris||'-')
+    +r2('NOP',d.nop||'')+r2('Nama WP',d.namawp||'')+r2('No SHM/NIB',d.noshm||'')
+    +r2('Tanggal',d.tgl||'')+'</table>'
+    +'<p style="font-size:11px;color:#888;margin-top:12px;line-height:1.6">Bawa tanda terima ini beserta kelengkapan berkas ke kantor pelayanan.</p></div>';
+}
+function r2(l,v){ return '<tr><td style="padding:4px 0;color:#777;width:42%">'+l+'</td><td style="padding:4px 0;font-weight:600">'+v+'</td></tr>'; }
+
+function printSK(){
+  if(!_cur){ showAlert('t','danger','Pilih permohonan terlebih dahulu.'); return; }
+  if(!g('ws-nosurat')){ showAlert('t','danger','Simpan data terlebih dahulu sebelum mencetak SK.'); return; }
+  var lb=parseFloat(g('ws-luasbumi'))||0, lg=parseFloat(g('ws-luasbangunan'))||0;
+  var nb=getNjopVal('ws-njopbumi'), ng=getNjopVal('ws-njopbangunan');
+  var tB=lb*nb, tG=lg*ng, tot=tB+tG;
+  var d={
+    no:_cur['No Formulir'], nosurat:g('ws-nosurat'),
+    nama:g('ws-nama'), hp:g('ws-hp'), alamat:g('ws-alamat'), notaris:g('ws-notaris'),
+    nop:g('ws-nop'), namawp:g('ws-namawp'), alamatwp:g('ws-alamatwp'),
+    alamatop:g('ws-alamatop'),
+    noshm:g('ws-noshm'), namasrt:g('ws-namasrt'), luassrt:g('ws-luassrt'),
+    lb:lb, lg:lg, nb:nb, ng:ng, tB:tB, tG:tG, tot:tot,
+    terbilang: uc(terbilang(tot))+' Rupiah',
+    pejabat:g('ws-pejabat'), nip:g('ws-nip'), jabatan:g('ws-jabatan'), pangkat:g('ws-pangkat'),
+    tgl:new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}),
+    tglPengajuan:_cur['Timestamp']||'-'
+  };
+  document.getElementById('print-content').innerHTML = buildSKHTML(d);
+  window.print();
+}
+
+function buildSKHTML(d){
+  var noSuratFmt = '900.1.13.1/' + d.nosurat + '/PBB/Bakeuda';
+
+  function fmtNOP(v){
+    var s = String(v).replace(/\D/g,'');
+    if(s.length < 18) return v;
+    return s.slice(0,2)+'.'+s.slice(2,4)+'.'+s.slice(4,7)+'.'+s.slice(7,10)+'.'+s.slice(10,13)+'.'+s.slice(13,17)+'.'+s.slice(17,18);
+  }
+
+  // Semua teks isi dokumen: Times New Roman 12pt, normal weight, line-height rapat seperti dokumen resmi
+  var S  = 'font-family:"Times New Roman",Times,serif;font-size:12pt;font-weight:normal;line-height:1.45;';
+  // Satu baris enter = margin-top setara 1 baris teks (~1em = 12pt)
+  var MB = 'margin-top:0;margin-bottom:1em;';
+
+  return (
+    /* ── Wrapper abu: hanya tampil di layar, hilang saat print ── */
+    '<div style="background:#6b7280;padding:28px;min-height:100vh;box-sizing:border-box">'
+
+    /* ── Lembar kertas ─────────────────────────────────────────── */
+    +'<div style="'+S+'width:215mm;min-height:330mm;margin:0 auto;background:#fff;'
+      +'box-shadow:0 4px 28px rgba(0,0,0,.4);border:3px solid #000;'
+      +'padding:15mm 20mm 15mm 25mm;position:relative;box-sizing:border-box">'
+      +'<div style="border:2px solid #000;padding:12mm;min-height:285mm;">'
+
+    /* ── KOP — pakai flex agar badge sejajar dengan logo ────────── */
+    +'<div style="display:flex;align-items:flex-start;gap:0;'
+      +'border-bottom:4px double #000;padding-bottom:8px;margin-bottom:14px">'
+
+      /* Logo */
+      +'<div style="width:88px;flex-shrink:0;text-align:center;padding-top:2px">'
+        +'<img src="https://lh3.googleusercontent.com/d/1KsP6VSELFzpfvkaz4rHUEvrFkJGLoBIm" '
+          +'style="width:80px;height:80px;object-fit:contain" '
+          +'onerror="this.outerHTML=\'<div style=&quot;width:80px;height:80px;border:1px dashed #ccc;'
+            +'display:flex;align-items:center;justify-content:center;font-size:9pt;color:#aaa&quot;>Logo</div>\'">'
+      +'</div>'
+
+      /* Teks kop — tumbuh mengisi sisa ruang, berikan padding-right agar tidak bertabrakan badge */
+      +'<div style="flex:1;text-align:center;padding:0 68px 0 0">'
+        +'<div style="font-size:13pt;font-weight:normal;letter-spacing:.5px;line-height:1.3">PEMERINTAH KABUPATEN TABANAN</div>'
+        +'<div style="font-size:20pt;font-weight:bold;text-transform:uppercase;line-height:1.1">Badan Keuangan Daerah</div>'
+        +'<div style="font-size:10pt;font-style:italic;line-height:1.4">Jl. Pahlawan No. 19 Telp. (0361) 811312</div>'
+        +'<div style="font-size:10pt;letter-spacing:3px;line-height:1.4">T A B A N A N</div>'
+      +'</div>'
+
+      /* Badge "Lembar 1 Wajib Pajak" — flex-shrink:0 agar tidak mengecil,
+         align-self:flex-start agar rata atas sejajar logo */
+      +'<div style="flex-shrink:0;align-self:flex-start;border:1px solid #000;'
+        +'text-align:center;padding:3px 5px;width:70px;font-family:sans-serif;'
+        +'font-size:10pt;font-weight:bold;line-height:1.5">'
+        +'Lembar 1<br>Wajib Pajak<br>'
+      +'</div>'
+    +'</div>'
+
+    /* ── JUDUL ────────────────────────────────────────────────── */
+    +'<div style="text-align:center;'+MB+'">'
+      +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:13pt;font-weight:bold;'
+        +'text-decoration:underline;text-transform:uppercase;letter-spacing:.3px">'
+        +'SURAT KETERANGAN PEMBETULAN NJOP'
+      +'</div>'
+      +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:11pt;font-weight:normal;margin-top:2px">'
+        +'Nomor: '+noSuratFmt
+      +'</div>'
+    +'</div>'
+
+    /* ── PEMBUKA ──────────────────────────────────────────────── */
+    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">Yang bertanda tangan di bawah ini :</div>'
+
+    /* ── DATA PEJABAT ─────────────────────────────────────────── */
+    +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:1em">'
+      +skL('Nama',           d.pejabat||'—')
+      +skL('NIP',            d.nip||'—')
+      +skL('Pangkat / Gol',  d.pangkat||'—')
+      +skL('Jabatan',        d.jabatan||'—')
+    +'</table>'
+  +'<div style="height:12px"></div>'
+    /* ── PENGANTAR — 1 enter sebelum tabel objek ──────────────── */
+    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+      +'Dengan ini menerangkan bahwa sesuai dengan simulasi berdasarkan basis data SIM PBB-P2 atas objek pajak :'
+    +'</div>'
+ +'<div style="height:12px"></div>'
+    /* ── DATA OBJEK PAJAK ─────────────────────────────────────── */
+   +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:0">'
+  +skL('Nomor Objek Pajak',  fmtNOP(d.nop))
+  +skL('Letak Objek Pajak',  (d.alamatop || '—').toUpperCase())
+  +skL('Nama Wajib Pajak',   (d.namawp || '—').toUpperCase())
+  +skL('Alamat Wajib Pajak', (d.alamatwp || '—').toUpperCase())
+  +skL('Nama Pemohon',       (d.nama || '—').toUpperCase())
+  +skL('Nomor SHM/NIB EL',        (d.noshm || '—').toUpperCase())
++'</table>'
+ +'<div style="height:12px"></div>'
+    /* ── "diperoleh data..." — 1 enter setelah tabel objek ────── */
+    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+      +'diperoleh data sebagai berikut :'
+    +'</div>'
+ +'<div style="height:12px"></div>'
+    /* ── KALKULASI NJOP ───────────────────────────────────────── */
+    +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:0">'
+      +'<tr>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:180px;padding:2px 0">NJOP Bumi</td>'
+        +'<td style="width:14px;padding:2px 0">:</td>'
+        +'<td style="width:88px;text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.lb)+'</td>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:38px;padding:2px 0">m2 x</td>'
+        +'<td style="width:110px;text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.nb)+'</td>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:46px;padding:2px 0">/m2 =</td>'
+        +'<td style="text-align:right;padding:2px 0;min-width:110px">'+fmtRp(d.tB)+'</td>'
+      +'</tr>'
+      +'<tr>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">NJOP Bangunan</td>'
+        +'<td style="padding:2px 0">:</td>'
+        +'<td style="text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.lg)+'</td>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">m2 x</td>'
+        +'<td style="text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.ng)+'</td>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">/m2 =</td>'
+        +'<td style="text-align:right;padding:2px 0">'+fmtRp(d.tG)+'</td>'
+      +'</tr>'
+      /* garis pemisah hanya di kolom nilai */
+      +'<tr>'
+        +'<td colspan="6" style="padding:0"></td>'
+        +'<td style="padding:1px 0"><div style="border-top:1px solid #000"></div></td>'
+      +'</tr>'
+      /* NJOP Keseluruhan — BOLD */
+      +'<tr>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">NJOP Keseluruhan</td>'
+        +'<td style="font-weight:normal;padding:2px 0">:</td>'
+        +'<td colspan="4" style="padding:2px 0"></td>'
+        +'<td style="text-align:right;font-weight:bold;font-size:13pt;padding:2px 0">'+fmtRp(d.tot)+'</td>'
+      +'</tr>'
+      /* Terbilang */
+      +'<tr>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding-top:4px;vertical-align:top">Terbilang</td>'
+        +'<td style="padding-top:4px;vertical-align:top">:</td>'
+        +'<td colspan="5" style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding-top:4px;font-style:italic">'+d.terbilang+'</td>'
+      +'</tr>'
+    +'</table>'
+ +'<div style="height:12px"></div>'
+    /* ── PENUTUP — 1 enter di atas ────────────────────────────── */
+    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+      +'Demikian Surat Keterangan Pembetulan NJOP ini dibuat untuk dapat dipergunakan '
+      +'seperlunya. Apabila di kemudian hari terdapat kekeliruan akan dibetulkan dan '
+      +'ditinjau kembali sesuai dengan ketentuan yang berlaku.'
+    +'</div>'
+ +'<div style="height:12px"></div>'
+    /* ── TANDA TANGAN ─────────────────────────────────────────── */
+    +'<div style="display:flex;justify-content:flex-end;padding-right:3px">'
+      +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;width:350px;line-height:1.15">'
+        +'<div>Tabanan, '+d.tgl+'</div>'
+        +'<div>An. Kepala Badan Keuangan Daerah</div>'
+        +'<div>Kabupaten Tabanan</div>'
+        +'<div style="margin-bottom:72px">'+(d.jabatan||'')+(d.jabatan?',':'')+'</div>'
+        +'<div style="font-weight:bold;text-decoration:underline;text-transform:uppercase;font-size:12pt">'
+          +(d.pejabat||'')
+        +'</div>'
+        +'<div>'+(d.pangkat||'')+'</div>'
+        +'<div>NIP. '+(d.nip||'')+'</div>'
+      +'</div>'
+    +'</div>'
+    
+    +'</div>'
+    +'</div>'  /* tutup kertas */
++'<div style="page-break-before:always;"></div>'
+        /* ── Lembar kertas ─────────────────────────────────────────── */
+    +'<div style="'+S+'width:215mm;min-height:330mm;margin:0 auto;background:#fff;'
+      +'box-shadow:0 4px 28px rgba(0,0,0,.4);border:3px solid #000;'
+      +'padding:15mm 20mm 15mm 25mm;position:relative;box-sizing:border-box">'
+      +'<div style="border:2px solid #000;padding:12mm;min-height:285mm;">'
+
+    /* ── KOP — pakai flex agar badge sejajar dengan logo ────────── */
+    +'<div style="display:flex;align-items:flex-start;gap:0;'
+      +'border-bottom:4px double #000;padding-bottom:8px;margin-bottom:14px">'
+
+      /* Logo */
+      +'<div style="width:88px;flex-shrink:0;text-align:center;padding-top:2px">'
+        +'<img src="https://lh3.googleusercontent.com/d/1KsP6VSELFzpfvkaz4rHUEvrFkJGLoBIm" '
+          +'style="width:80px;height:80px;object-fit:contain" '
+          +'onerror="this.outerHTML=\'<div style=&quot;width:80px;height:80px;border:1px dashed #ccc;'
+            +'display:flex;align-items:center;justify-content:center;font-size:9pt;color:#aaa&quot;>Logo</div>\'">'
+      +'</div>'
+
+      /* Teks kop — tumbuh mengisi sisa ruang, berikan padding-right agar tidak bertabrakan badge */
+      +'<div style="flex:1;text-align:center;padding:0 68px 0 0">'
+        +'<div style="font-size:13pt;font-weight:normal;letter-spacing:.5px;line-height:1.3">PEMERINTAH KABUPATEN TABANAN</div>'
+        +'<div style="font-size:20pt;font-weight:bold;text-transform:uppercase;line-height:1.1">Badan Keuangan Daerah</div>'
+        +'<div style="font-size:10pt;font-style:italic;line-height:1.4">Jl. Pahlawan No. 19 Telp. (0361) 811312</div>'
+        +'<div style="font-size:10pt;letter-spacing:3px;line-height:1.4">T A B A N A N</div>'
+      +'</div>'
+
+      /* Badge "Lembar 1 Wajib Pajak" — flex-shrink:0 agar tidak mengecil,
+         align-self:flex-start agar rata atas sejajar logo */
+      +'<div style="flex-shrink:0;align-self:flex-start;border:1px solid #000;'
+        +'text-align:center;padding:3px 5px;width:70px;font-family:sans-serif;'
+        +'font-size:10pt;font-weight:bold;line-height:1.5">'
+        +'Lembar 2<br>Bakeuda<br>'
+      +'</div>'
+    +'</div>'
+
+    /* ── JUDUL ────────────────────────────────────────────────── */
+    +'<div style="text-align:center;'+MB+'">'
+      +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:13pt;font-weight:bold;'
+        +'text-decoration:underline;text-transform:uppercase;letter-spacing:.3px">'
+        +'SURAT KETERANGAN PEMBETULAN NJOP'
+      +'</div>'
+      +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:11pt;font-weight:normal;margin-top:2px">'
+        +'Nomor: '+noSuratFmt
+      +'</div>'
+    +'</div>'
+
+    /* ── PEMBUKA ──────────────────────────────────────────────── */
+    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">Yang bertanda tangan di bawah ini :</div>'
+
+    /* ── DATA PEJABAT ─────────────────────────────────────────── */
+    +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:1em">'
+      +skL('Nama',           d.pejabat||'—')
+      +skL('NIP',            d.nip||'—')
+      +skL('Pangkat / Gol',  d.pangkat||'—')
+      +skL('Jabatan',        d.jabatan||'—')
+    +'</table>'
+  +'<div style="height:12px"></div>'
+    /* ── PENGANTAR — 1 enter sebelum tabel objek ──────────────── */
+    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+      +'Dengan ini menerangkan bahwa sesuai dengan simulasi berdasarkan basis data SIM PBB-P2 atas objek pajak :'
+    +'</div>'
+ +'<div style="height:12px"></div>'
+    /* ── DATA OBJEK PAJAK ─────────────────────────────────────── */
+   +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:0">'
+  +skL('Nomor Objek Pajak',  fmtNOP(d.nop))
+  +skL('Letak Objek Pajak',  (d.alamatop || '—').toUpperCase())
+  +skL('Nama Wajib Pajak',   (d.namawp || '—').toUpperCase())
+  +skL('Alamat Wajib Pajak', (d.alamatwp || '—').toUpperCase())
+  +skL('Nama Pemohon',       (d.nama || '—').toUpperCase())
+  +skL('Nomor SHM/NIB EL',        (d.noshm || '—').toUpperCase())
++'</table>'
+ +'<div style="height:12px"></div>'
+    /* ── "diperoleh data..." — 1 enter setelah tabel objek ────── */
+    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+      +'diperoleh data sebagai berikut :'
+    +'</div>'
+ +'<div style="height:12px"></div>'
+    /* ── KALKULASI NJOP ───────────────────────────────────────── */
+    +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:0">'
+      +'<tr>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:180px;padding:2px 0">NJOP Bumi</td>'
+        +'<td style="width:14px;padding:2px 0">:</td>'
+        +'<td style="width:88px;text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.lb)+'</td>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:38px;padding:2px 0">m2 x</td>'
+        +'<td style="width:110px;text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.nb)+'</td>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:46px;padding:2px 0">/m2 =</td>'
+        +'<td style="text-align:right;padding:2px 0;min-width:110px">'+fmtRp(d.tB)+'</td>'
+      +'</tr>'
+      +'<tr>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">NJOP Bangunan</td>'
+        +'<td style="padding:2px 0">:</td>'
+        +'<td style="text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.lg)+'</td>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">m2 x</td>'
+        +'<td style="text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.ng)+'</td>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">/m2 =</td>'
+        +'<td style="text-align:right;padding:2px 0">'+fmtRp(d.tG)+'</td>'
+      +'</tr>'
+      /* garis pemisah hanya di kolom nilai */
+      +'<tr>'
+        +'<td colspan="6" style="padding:0"></td>'
+        +'<td style="padding:1px 0"><div style="border-top:1px solid #000"></div></td>'
+      +'</tr>'
+      /* NJOP Keseluruhan — BOLD */
+      +'<tr>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">NJOP Keseluruhan</td>'
+        +'<td style="font-weight:normal;padding:2px 0">:</td>'
+        +'<td colspan="4" style="padding:2px 0"></td>'
+        +'<td style="text-align:right;font-weight:bold;font-size:13pt;padding:2px 0">'+fmtRp(d.tot)+'</td>'
+      +'</tr>'
+      /* Terbilang */
+      +'<tr>'
+        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding-top:4px;vertical-align:top">Terbilang</td>'
+        +'<td style="padding-top:4px;vertical-align:top">:</td>'
+        +'<td colspan="5" style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding-top:4px;font-style:italic">'+d.terbilang+'</td>'
+      +'</tr>'
+    +'</table>'
+ +'<div style="height:12px"></div>'
+    /* ── PENUTUP — 1 enter di atas ────────────────────────────── */
+    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+      +'Demikian Surat Keterangan Pembetulan NJOP ini dibuat untuk dapat dipergunakan '
+      +'seperlunya. Apabila di kemudian hari terdapat kekeliruan akan dibetulkan dan '
+      +'ditinjau kembali sesuai dengan ketentuan yang berlaku.'
+    +'</div>'
+ +'<div style="height:12px"></div>'
+    /* ── TANDA TANGAN ─────────────────────────────────────────── */
+    +'<div style="display:flex;justify-content:flex-end;padding-right:3px">'
+      +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;width:350px;line-height:1.15">'
+        +'<div>Tabanan, '+d.tgl+'</div>'
+        +'<div>An. Kepala Badan Keuangan Daerah</div>'
+        +'<div>Kabupaten Tabanan</div>'
+        +'<div style="margin-bottom:72px">'+(d.jabatan||'')+(d.jabatan?',':'')+'</div>'
+        +'<div style="font-weight:bold;text-decoration:underline;text-transform:uppercase;font-size:12pt">'
+          +(d.pejabat||'')
+        +'</div>'
+        +'<div>'+(d.pangkat||'')+'</div>'
+        +'<div>NIP. '+(d.nip||'')+'</div>'
+      +'</div>'
+    +'</div>'
+    
+    +'</div>'
+    +'</div>'  /* tutup kertas */
+    +'</div>'  /* tutup wrapper abu */
+  );
+}
+
+/* Baris tabel label : nilai — TNR 12pt, normal weight, line-height rapat */
+function skL(l,v){
+  return '<tr>'
+    +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;'
+      +'width:185px;vertical-align:top;padding:1.5px 0">'+l+'</td>'
+    +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;'
+      +'width:14px;vertical-align:top;padding:1.5px 0">:</td>'
+    +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;'
+      +'padding:1.5px 0">'+v+'</td>'
+    +'</tr>';
+}
+
+// ─── Terbilang ────────────────────────────────────────────
+var sat=['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
+function rat(n){
+  if(n<12)return sat[n];
+  if(n<20)return sat[n-10]+' belas';
+  if(n<100){var s=sat[Math.floor(n/10)]+' puluh';return n%10?s+' '+sat[n%10]:s;}
+  if(n<200)return 'seratus'+(n>100?' '+rat(n-100):'');
+  return sat[Math.floor(n/100)]+' ratus'+(n%100?' '+rat(n%100):'');
+}
+function terbilang(n){
+  n=Math.round(n); if(n===0)return 'nol';
+  if(n<1000)return rat(n);
+  if(n<1000000){var r=Math.floor(n/1000);return(r===1?'seribu':rat(r)+' ribu')+(n%1000?' '+rat(n%1000):'');}
+  if(n<1000000000){var r=Math.floor(n/1000000);return rat(r)+' juta'+(n%1000000?' '+terbilang(n%1000000):'');}
+  var r=Math.floor(n/1000000000);return rat(r)+' miliar'+(n%1000000000?' '+terbilang(n%1000000000):'');
+}
+
+// ─── Init ─────────────────────────────────────────────────
+window.onload = function(){
+  updateStatus();
+  setAdminUI(false);
+};
+
+// Promise.finally polyfill jika browser lama
+if(!Promise.prototype.finally){
+  Promise.prototype.finally = function(fn){
+    return this.then(function(v){fn();return v;},function(e){fn();throw e;});
+  };
+}
+</script>
+</body>
+</html>
