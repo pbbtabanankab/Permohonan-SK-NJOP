@@ -343,7 +343,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="field"><label>NOP *</label><input id="p-nop" placeholder="00.00.000.000.000.0000.0" inputmode="numeric" maxlength="24" oninput="fmtNopInput(this)"></div>
         <div class="field"><label>Nama Wajib Pajak *</label><input id="p-namawp" placeholder="Sesuai SPPT PBB"></div>
         <div class="field span-full"><label>Alamat Wajib Pajak *</label><textarea id="p-alamatwp" placeholder="Alamat sesuai SPPT PBB"></textarea></div>
-        <div class="field span-full"><label>Alamat / Letak Objek Pajak *</label><textarea id="p-alamatop" placeholder="Input dari Jalan, Desa, Kecamatan"></textarea></div>
+        <div class="field span-full"><label>Alamat / Letak Objek Pajak *</label><textarea id="p-alamatop" placeholder="Contoh: Dauh Peken, Tabanan"></textarea></div>
         <div class="field"><label>Luas Bumi (m²) *</label><input id="p-luasbumi" type="number" placeholder="0" min="0"></div>
         <div class="field"><label>Luas Bangunan (m²)</label><input id="p-luasbangunan" type="number" placeholder="0" min="0"></div>
       </div>
@@ -372,6 +372,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <p style="font-size:12px;color:var(--muted);line-height:1.7;margin-top:.75rem">Harap <strong>cetak atau foto</strong> nomor formulir ini dan bawa bersama kelengkapan berkas ke kantor pelayanan.</p>
       <div class="btn-row no-print">
         <button class="btn btn-print" onclick="printReceipt()">Cetak Tanda Terima</button>
+        <button class="btn" style="background:#5b3fa6;border-color:#5b3fa6;color:#fff" onclick="printSuratPermohonan()">Cetak Surat Permohonan</button>
         <button class="btn btn-primary" onclick="resetForm()">Permohonan Baru</button>
       </div>
     </div>
@@ -863,7 +864,7 @@ function s(id, v) { var el = document.getElementById(id); if(el) el.value = v ||
 // ─── Pejabat Default — HARDCODED, selalu sama ─────────────
 var PEJABAT = {
   pejabat : 'I Kadek Suardana Dwi Putra, S.IP, M.M.',
-  nip      : '19880612 200701 1 001',
+  nip      : '198806122007011001',
   pangkat  : 'Pembina (IV/a)',
   jabatan  : 'Kepala Bidang PBB-P2 & BPHTB'
 };
@@ -965,8 +966,16 @@ function submitPemohon() {
         document.getElementById('form-wrap').style.display = 'none';
         document.getElementById('receipt-wrap').style.display = 'block';
         // simpan untuk cetak
-        window._lastReceipt = { no:no, nama:g('p-nama'), hp:g('p-hp'), notaris:g('p-notaris'),
-          nop:g('p-nop'), namawp:g('p-namawp'), noshm:g('p-noshm'), tgl:tgl };
+        window._lastReceipt = {
+          no: no, tgl: tgl,
+          nama: g('p-nama'), hp: g('p-hp'), alamat: g('p-alamat'),
+          notaris: g('p-notaris'),
+          nop: g('p-nop'), namawp: g('p-namawp'),
+          noshm: g('p-noshm'), namasrt: g('p-namasrt'),
+          luasbumi: g('p-luasbumi'), luasbangunan: g('p-luasbangunan'),
+          luassrt: g('p-luassrt'), alamatwp: g('p-alamatwp'),
+          alamatop: g('p-alamatop')
+        };
         clearAlert('p');
       } else {
         showAlert('p','danger', res.message || 'Terjadi kesalahan pada server.');
@@ -1163,25 +1172,8 @@ function submitPetugas() {
 // ─── Print ────────────────────────────────────────────────
 function printReceipt(){
   var d = window._lastReceipt || {};
-  document.getElementById('print-content').innerHTML = buildReceiptHTML(d);
-  window.print();
+  openPrintWindow(buildReceiptHTML(d));
 }
-
-function buildReceiptHTML(d){
-  return '<div style="font-family:serif;max-width:380px;margin:0 auto;padding:24px;border:1px solid #ccc;border-radius:8px">'
-    +'<div style="text-align:center;margin-bottom:16px">'
-    +'<div style="font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:1px">Tanda Terima Permohonan</div>'
-    +'<div style="font-size:11px;color:#888;margin-top:4px">SK NJOP — Pelayanan Pajak Daerah</div></div>'
-    +'<div style="border-top:1px dashed #ccc;border-bottom:1px dashed #ccc;padding:12px 0;text-align:center;margin:12px 0">'
-    +'<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:2px">No Formulir</div>'
-    +'<div style="font-size:24px;font-weight:bold;letter-spacing:3px;margin-top:6px;font-family:monospace">'+d.no+'</div></div>'
-    +'<table style="width:100%;font-size:12px;border-collapse:collapse">'
-    +r2('Nama Pemohon',d.nama||'')+r2('No HP',d.hp||'')+r2('Notaris',d.notaris||'-')
-    +r2('NOP',d.nop||'')+r2('Nama WP',d.namawp||'')+r2('No SHM/NIB',d.noshm||'')
-    +r2('Tanggal',d.tgl||'')+'</table>'
-    +'<p style="font-size:11px;color:#888;margin-top:12px;line-height:1.6">Bawa tanda terima ini beserta kelengkapan berkas ke kantor pelayanan.</p></div>';
-}
-function r2(l,v){ return '<tr><td style="padding:4px 0;color:#777;width:42%">'+l+'</td><td style="padding:4px 0;font-weight:600">'+v+'</td></tr>'; }
 
 function printSK(){
   if(!_cur){ showAlert('t','danger','Pilih permohonan terlebih dahulu.'); return; }
@@ -1201,8 +1193,198 @@ function printSK(){
     tgl:new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}),
     tglPengajuan:_cur['Timestamp']||'-'
   };
-  document.getElementById('print-content').innerHTML = buildSKHTML(d);
-  window.print();
+  openPrintWindow(buildSKHTML(d));
+}
+
+// Buka window baru untuk cetak — menghindari blokir window.print()
+// di GitHub Pages / iframe sandbox
+function openPrintWindow(htmlContent){
+  var w = window.open('','_blank','width=900,height=700');
+  if(!w){
+    alert('Pop-up diblokir browser.\nIzinkan pop-up untuk situs ini, lalu coba lagi.\n(Klik ikon blokir di address bar → Izinkan)');
+    return;
+  }
+  w.document.open();
+  w.document.write(
+    '<!DOCTYPE html><html><head>'
+    +'<meta charset="UTF-8">'
+    +'<title>Cetak SK NJOP</title>'
+    +'<style>'
+    +'*{margin:0;padding:0;box-sizing:border-box}'
+    +'body{background:#fff;font-family:"Times New Roman",Times,serif}'
+    +'@media print{'
+    +'  body{margin:0}'
+    +'  @page{size:215mm 330mm;margin:0}'
+    +'  /* Sembunyikan wrapper abu, cetak hanya kertas putih */'
+    +'  body > div > div:first-child{background:transparent!important;padding:0!important;}'
+    +'}'
+    +'</style>'
+    +'</head><body>'
+    + htmlContent
+    +'<script>'
+    +'window.onload=function(){'
+    +'  setTimeout(function(){ window.print(); window.close(); },400);'
+    +'};'
+    +'<\/script>'
+    +'</body></html>'
+  );
+  w.document.close();
+}
+
+function buildReceiptHTML(d){
+  return '<div style="font-family:serif;max-width:380px;margin:0 auto;padding:24px;border:1px solid #ccc;border-radius:8px">'
+    +'<div style="text-align:center;margin-bottom:16px">'
+    +'<div style="font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:1px">Tanda Terima Permohonan</div>'
+    +'<div style="font-size:11px;color:#888;margin-top:4px">SK NJOP — Pelayanan Pajak Daerah</div></div>'
+    +'<div style="border-top:1px dashed #ccc;border-bottom:1px dashed #ccc;padding:12px 0;text-align:center;margin:12px 0">'
+    +'<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:2px">No Formulir</div>'
+    +'<div style="font-size:24px;font-weight:bold;letter-spacing:3px;margin-top:6px;font-family:monospace">'+d.no+'</div></div>'
+    +'<table style="width:100%;font-size:12px;border-collapse:collapse">'
+    +r2('Nama Pemohon',d.nama||'')+r2('No HP',d.hp||'')+r2('Notaris',d.notaris||'-')
+    +r2('NOP',d.nop||'')+r2('Nama WP',d.namawp||'')+r2('No SHM/NIB',d.noshm||'')
+    +r2('Tanggal',d.tgl||'')+'</table>'
+    +'<p style="font-size:11px;color:#888;margin-top:12px;line-height:1.6">Bawa tanda terima ini beserta kelengkapan berkas ke kantor pelayanan.</p></div>';
+}
+function r2(l,v){ return '<tr><td style="padding:4px 0;color:#777;width:42%">'+l+'</td><td style="padding:4px 0;font-weight:600">'+v+'</td></tr>'; }
+
+// ─── Cetak Surat Permohonan SK NJOP ──────────────────────
+function printSuratPermohonan(){
+  var d = window._lastReceipt || {};
+  openPrintWindow(buildSuratPermohonanHTML(d));
+}
+
+function buildSuratPermohonanHTML(d){
+  var F  = 'font-family:"Times New Roman",Times,serif;font-size:12pt;font-weight:normal;';
+  var FB = 'font-family:"Times New Roman",Times,serif;font-size:12pt;font-weight:bold;';
+  var LH = 'line-height:1.8;';
+
+  // Pisah alamatop menjadi komponen Jl/Br/Subak, Desa, Kecamatan jika ada
+  // WP bisa isi format "Br. X, Desa Y, Kec. Z" — kita tampilkan apa adanya
+  var alamatop = d.alamatop || '...........................................................';
+
+  // Tahun berjalan untuk perihal
+  var tahun = new Date().getFullYear();
+
+  return (
+    '<div style="'+F+LH+'width:210mm;min-height:297mm;margin:0 auto;background:#fff;'
+      +'padding:20mm 25mm 20mm 30mm;box-sizing:border-box">'
+
+    // ── HEADER SURAT ──
+    +'<table style="'+F+LH+'width:100%;border-collapse:collapse;margin-bottom:20px">'
+      +'<tr>'
+        +'<td style="width:50%;vertical-align:top">'
+          +'<table style="'+F+LH+'border-collapse:collapse">'
+            +spL('Nomer','........................................')
+            +spL('Lampiran',': 1 ( satu ) Gabung')
+            +spL('Perihal',': Permohonan Surat Keterangan<br>&nbsp;&nbsp;&nbsp;NJOP Tahun '+tahun)
+          +'</table>'
+        +'</td>'
+        +'<td style="width:50%;vertical-align:top;text-align:right">'
+          +'Tabanan, '+d.tgl
+        +'</td>'
+      +'</tr>'
+    +'</table>'
+
+    // ── TUJUAN SURAT ──
+    +'<div style="'+F+LH+'margin-bottom:20px">'
+      +'<div>Kepada :</div>'
+      +'<div style="margin-left:16px">'
+        +'<div>Yth.&nbsp;&nbsp;&nbsp;Kepala Badan Keuangan Daerah Kabupaten Tabanan</div>'
+        +'<div style="margin-left:48px">Cq. Kepala Bidang PBB-P2 dan BPHTB</div>'
+        +'<div>di -</div>'
+        +'<div style="margin-left:48px;'+FB+'">Tabanan</div>'
+      +'</div>'
+    +'</div>'
+    +'<div style="height:12px"></div>'
+    // ── PEMBUKA ──
+    +'<div style="'+F+LH+'margin-bottom:14px">'
+      +'<div>Yang bertanda tangan dibawah ini :</div>'
+      +'<table style="'+F+LH+'border-collapse:collapse;margin-top:4px;margin-left:8px">'
+        +spL2('Nama',      d.nama    || '.................................................................')
+        +spL2('Alamat',    d.alamat  || '.................................................................')
+        +spL2('Nomor Telepon/HP', d.hp || '.................................................................')
+      +'</table>'
+    +'</div>'
+    +'<div style="height:12px"></div>'
+    // ── KALIMAT PENGAJUAN ──
+    +'<p style="'+F+LH+'margin-bottom:14px;text-align:justify">'
+      +'dengan ini mengajukan permohonan Surat Keterangan NJOP tahun pajak atas objek pajak :'
+    +'</p>'
+    +'<div style="height:12px"></div>'
+    // ── DATA OBJEK PAJAK ──
+    +'<table style="'+F+LH+'border-collapse:collapse;margin-bottom:20px;width:100%">'
+      +spL2('Nama Wajib Pajak', d.namawp    || '.................................................................')
+      +spL2('No. SPPT / NOP',   d.nop       || '.................................................................')
+      +spL2('Luas Bumi',        (d.luasbumi ? d.luasbumi+' m²' : '.................................................'))
+      +spL2('NJOP Bumi',        '.................................................................')
+      +spL2('Luas Bangunan',    (d.luasbangunan ? d.luasbangunan+' m²' : '.................................................'))
+      +spL2('NJOP Bangunan',    '.................................................................')
+      +'<tr>'
+        +'<td style="'+F+'width:175px;vertical-align:top;padding:2px 0">Letak Objek Pajak</td>'
+        +'<td style="'+F+'width:14px;vertical-align:top;padding:2px 0">:</td>'
+        +'<td style="'+F+'padding:2px 0">'+alamatop+'</td>'
+      +'</tr>'
+    +'</table>'
+    +'<div style="height:12px"></div>'
+    // ── SYARAT-SYARAT ──
+  +'<p style="'+F+LH+'margin-bottom:6px">Syarat – syarat Permohonan Surat Keterangan NJOP sebagai berikut :</p>'
+
++'<div style="transform:translateX(30px);">'
+  +'<table style="'+F+'line-height:1.9;">'
+    +'<tr><td>1.</td><td>Fotocopy KTP dan KK</td></tr>'
+    +'<tr><td>2.</td><td>Fotocopy Bukti Pembayaran /STTS /SSPD PBB yang terakhir</td></tr>'
+    +'<tr><td>3.</td><td>Fotocopy Sertifikat</td></tr>'
+    +'<tr><td>4.</td><td>Fotocopy IMB</td></tr>'
+    +'<tr><td>5.</td><td>Surat Keterangan Desa jika belum ada IMB</td></tr>'
+    +'<tr><td>6.</td><td>Mengisi LSPOP Bangunan</td></tr>'
+    +'<tr><td>7.</td><td>Surat Kuasa apabila dikuasakan kepada Pihak Lain</td></tr>'
+  +'</table>'
++'</div>'
+    +'<div style="height:12px"></div>'
+    // ── PENUTUP ──
+    +'<p style="'+F+LH+'margin-bottom:40px;text-align:justify">'
+      +'Demikian Permohonan ini kami ajukan untuk dapat diproses lebih lanjut.'
+    +'</p>'
+    +'<div style="height:36px"></div>'
+    // ── TANDA TANGAN ──
+    +'<div style="display:flex;justify-content:flex-end">'
+      +'<div style="'+F+LH+'text-align:center;width:220px">'
+        +'<div>Wajib Pajak / Kuasanya</div>'
+        +'<div style="height:70px"></div>'
+        +'<div>...................................</div>'
+      +'</div>'
+    +'</div>'
+
+    // ── FOOTER ──
+    +'<div style="'+F+'font-size:10pt;font-style:italic;margin-top:32px">'
+      +'*)Coret yang tidak perlu'
+    +'</div>'
+
+    +'</div>'
+  );
+}
+
+// Baris surat: label + nilai (header surat: Nomer, Lampiran, Perihal)
+function spL(l,v){
+  return '<tr>'
+    +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;'
+      +'width:90px;vertical-align:top;padding:1px 0">'+l+'</td>'
+    +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;'
+      +'width:14px;vertical-align:top;padding:1px 0">:</td>'
+    +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;'
+      +'padding:1px 0">'+v+'</td>'
+    +'</tr>';
+}
+// Baris data isi surat (label lebih lebar)
+function spL2(l,v){
+  return '<tr>'
+    +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;'
+      +'width:175px;vertical-align:top;padding:2px 0">'+l+'</td>'
+    +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;'
+      +'width:14px;vertical-align:top;padding:2px 0">:</td>'
+    +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;'
+      +'padding:2px 0">'+v+'</td>'
+    +'</tr>';
 }
 
 function buildSKHTML(d){
@@ -1252,9 +1434,9 @@ function buildSKHTML(d){
       /* Badge "Lembar 1 Wajib Pajak" — flex-shrink:0 agar tidak mengecil,
          align-self:flex-start agar rata atas sejajar logo */
       +'<div style="flex-shrink:0;align-self:flex-start;border:1px solid #000;'
-        +'text-align:center;padding:3px 5px;width:70px;font-family:sans-serif;'
-        +'font-size:10pt;font-weight:bold;line-height:1.5">'
-        +'Lembar 1<br>Wajib Pajak<br>'
+        +'text-align:center;padding:3px 5px;width:56px;font-family:sans-serif;'
+        +'font-size:8pt;font-weight:normal;line-height:1.5">'
+        +'Lembar 1<br>Wajib<br>Pajak'
       +'</div>'
     +'</div>'
 
@@ -1270,7 +1452,7 @@ function buildSKHTML(d){
     +'</div>'
 
     /* ── PEMBUKA ──────────────────────────────────────────────── */
-    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">Yang bertanda tangan di bawah ini :</div>'
+    +'<p style="'+S+MB+'">Yang bertanda tangan di bawah ini :</p>'
 
     /* ── DATA PEJABAT ─────────────────────────────────────────── */
     +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:1em">'
@@ -1281,9 +1463,9 @@ function buildSKHTML(d){
     +'</table>'
   +'<div style="height:12px"></div>'
     /* ── PENGANTAR — 1 enter sebelum tabel objek ──────────────── */
-    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+    +'<p style="'+S+MB+'text-align:justify">'
       +'Dengan ini menerangkan bahwa sesuai dengan simulasi berdasarkan basis data SIM PBB-P2 atas objek pajak :'
-    +'</div>'
+    +'</p>'
  +'<div style="height:12px"></div>'
     /* ── DATA OBJEK PAJAK ─────────────────────────────────────── */
    +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:0">'
@@ -1296,28 +1478,28 @@ function buildSKHTML(d){
 +'</table>'
  +'<div style="height:12px"></div>'
     /* ── "diperoleh data..." — 1 enter setelah tabel objek ────── */
-    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+    +'<p style="'+S+'margin-top:1em;margin-bottom:.3em;margin-left:24px">'
       +'diperoleh data sebagai berikut :'
-    +'</div>'
+    +'</p>'
  +'<div style="height:12px"></div>'
     /* ── KALKULASI NJOP ───────────────────────────────────────── */
     +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:0">'
       +'<tr>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:180px;padding:2px 0">NJOP Bumi</td>'
+        +'<td style="width:180px;padding:2px 0">NJOP Bumi</td>'
         +'<td style="width:14px;padding:2px 0">:</td>'
         +'<td style="width:88px;text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.lb)+'</td>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:38px;padding:2px 0">m2 x</td>'
+        +'<td style="width:38px;padding:2px 0">m2 x</td>'
         +'<td style="width:110px;text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.nb)+'</td>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:46px;padding:2px 0">/m2 =</td>'
+        +'<td style="width:46px;padding:2px 0">/m2 =</td>'
         +'<td style="text-align:right;padding:2px 0;min-width:110px">'+fmtRp(d.tB)+'</td>'
       +'</tr>'
       +'<tr>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">NJOP Bangunan</td>'
+        +'<td style="padding:2px 0">NJOP Bangunan</td>'
         +'<td style="padding:2px 0">:</td>'
         +'<td style="text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.lg)+'</td>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">m2 x</td>'
+        +'<td style="padding:2px 0">m2 x</td>'
         +'<td style="text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.ng)+'</td>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">/m2 =</td>'
+        +'<td style="padding:2px 0">/m2 =</td>'
         +'<td style="text-align:right;padding:2px 0">'+fmtRp(d.tG)+'</td>'
       +'</tr>'
       /* garis pemisah hanya di kolom nilai */
@@ -1327,29 +1509,29 @@ function buildSKHTML(d){
       +'</tr>'
       /* NJOP Keseluruhan — BOLD */
       +'<tr>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">NJOP Keseluruhan</td>'
-        +'<td style="font-weight:normal;padding:2px 0">:</td>'
+        +'<td style="font-weight:bold;padding:2px 0">NJOP Keseluruhan</td>'
+        +'<td style="font-weight:bold;padding:2px 0">:</td>'
         +'<td colspan="4" style="padding:2px 0"></td>'
         +'<td style="text-align:right;font-weight:bold;font-size:13pt;padding:2px 0">'+fmtRp(d.tot)+'</td>'
       +'</tr>'
       /* Terbilang */
       +'<tr>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding-top:4px;vertical-align:top">Terbilang</td>'
+        +'<td style="padding-top:4px;vertical-align:top">Terbilang</td>'
         +'<td style="padding-top:4px;vertical-align:top">:</td>'
-        +'<td colspan="5" style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding-top:4px;font-style:italic">'+d.terbilang+'</td>'
+        +'<td colspan="5" style="padding-top:4px;font-style:italic">'+d.terbilang+'</td>'
       +'</tr>'
     +'</table>'
  +'<div style="height:12px"></div>'
     /* ── PENUTUP — 1 enter di atas ────────────────────────────── */
-    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+    +'<p style="'+S+'margin-top:1em;margin-bottom:1em;text-align:justify">'
       +'Demikian Surat Keterangan Pembetulan NJOP ini dibuat untuk dapat dipergunakan '
       +'seperlunya. Apabila di kemudian hari terdapat kekeliruan akan dibetulkan dan '
       +'ditinjau kembali sesuai dengan ketentuan yang berlaku.'
-    +'</div>'
+    +'</p>'
  +'<div style="height:12px"></div>'
     /* ── TANDA TANGAN ─────────────────────────────────────────── */
-    +'<div style="display:flex;justify-content:flex-end;padding-right:3px">'
-      +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;width:350px;line-height:1.15">'
+    +'<div style="display:flex;justify-content:flex-end;padding-right:4px">'
+      +'<div style="'+S+'text-align:center;width:300px;line-height:1.5">'
         +'<div>Tabanan, '+d.tgl+'</div>'
         +'<div>An. Kepala Badan Keuangan Daerah</div>'
         +'<div>Kabupaten Tabanan</div>'
@@ -1365,13 +1547,13 @@ function buildSKHTML(d){
     +'</div>'
     +'</div>'  /* tutup kertas */
 +'<div style="page-break-before:always;"></div>'
-        /* ── Lembar kertas ─────────────────────────────────────────── */
+     /* ── Lembar kertas ─────────────────────────────────────────── */
     +'<div style="'+S+'width:215mm;min-height:330mm;margin:0 auto;background:#fff;'
       +'box-shadow:0 4px 28px rgba(0,0,0,.4);border:3px solid #000;'
       +'padding:15mm 20mm 15mm 25mm;position:relative;box-sizing:border-box">'
       +'<div style="border:2px solid #000;padding:12mm;min-height:285mm;">'
 
-    /* ── KOP — pakai flex agar badge sejajar dengan logo ────────── */
+   /* ── KOP — pakai flex agar badge sejajar dengan logo ────────── */
     +'<div style="display:flex;align-items:flex-start;gap:0;'
       +'border-bottom:4px double #000;padding-bottom:8px;margin-bottom:14px">'
 
@@ -1394,9 +1576,9 @@ function buildSKHTML(d){
       /* Badge "Lembar 1 Wajib Pajak" — flex-shrink:0 agar tidak mengecil,
          align-self:flex-start agar rata atas sejajar logo */
       +'<div style="flex-shrink:0;align-self:flex-start;border:1px solid #000;'
-        +'text-align:center;padding:3px 5px;width:70px;font-family:sans-serif;'
-        +'font-size:10pt;font-weight:bold;line-height:1.5">'
-        +'Lembar 2<br>Bakeuda<br>'
+        +'text-align:center;padding:3px 5px;width:56px;font-family:sans-serif;'
+        +'font-size:8pt;font-weight:normal;line-height:1.5">'
+        +'Lembar 2<br>Bakeuda'
       +'</div>'
     +'</div>'
 
@@ -1412,7 +1594,7 @@ function buildSKHTML(d){
     +'</div>'
 
     /* ── PEMBUKA ──────────────────────────────────────────────── */
-    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">Yang bertanda tangan di bawah ini :</div>'
+    +'<p style="'+S+MB+'">Yang bertanda tangan di bawah ini :</p>'
 
     /* ── DATA PEJABAT ─────────────────────────────────────────── */
     +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:1em">'
@@ -1423,9 +1605,9 @@ function buildSKHTML(d){
     +'</table>'
   +'<div style="height:12px"></div>'
     /* ── PENGANTAR — 1 enter sebelum tabel objek ──────────────── */
-    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+    +'<p style="'+S+MB+'text-align:justify">'
       +'Dengan ini menerangkan bahwa sesuai dengan simulasi berdasarkan basis data SIM PBB-P2 atas objek pajak :'
-    +'</div>'
+    +'</p>'
  +'<div style="height:12px"></div>'
     /* ── DATA OBJEK PAJAK ─────────────────────────────────────── */
    +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:0">'
@@ -1438,28 +1620,28 @@ function buildSKHTML(d){
 +'</table>'
  +'<div style="height:12px"></div>'
     /* ── "diperoleh data..." — 1 enter setelah tabel objek ────── */
-    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+    +'<p style="'+S+'margin-top:1em;margin-bottom:.3em;margin-left:24px">'
       +'diperoleh data sebagai berikut :'
-    +'</div>'
+    +'</p>'
  +'<div style="height:12px"></div>'
     /* ── KALKULASI NJOP ───────────────────────────────────────── */
     +'<table style="'+S+'border-collapse:collapse;margin-left:24px;margin-bottom:0">'
       +'<tr>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:180px;padding:2px 0">NJOP Bumi</td>'
+        +'<td style="width:180px;padding:2px 0">NJOP Bumi</td>'
         +'<td style="width:14px;padding:2px 0">:</td>'
         +'<td style="width:88px;text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.lb)+'</td>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:38px;padding:2px 0">m2 x</td>'
+        +'<td style="width:38px;padding:2px 0">m2 x</td>'
         +'<td style="width:110px;text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.nb)+'</td>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;width:46px;padding:2px 0">/m2 =</td>'
+        +'<td style="width:46px;padding:2px 0">/m2 =</td>'
         +'<td style="text-align:right;padding:2px 0;min-width:110px">'+fmtRp(d.tB)+'</td>'
       +'</tr>'
       +'<tr>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">NJOP Bangunan</td>'
+        +'<td style="padding:2px 0">NJOP Bangunan</td>'
         +'<td style="padding:2px 0">:</td>'
         +'<td style="text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.lg)+'</td>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">m2 x</td>'
+        +'<td style="padding:2px 0">m2 x</td>'
         +'<td style="text-align:right;padding:2px 6px 2px 0">'+fmtRp(d.ng)+'</td>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">/m2 =</td>'
+        +'<td style="padding:2px 0">/m2 =</td>'
         +'<td style="text-align:right;padding:2px 0">'+fmtRp(d.tG)+'</td>'
       +'</tr>'
       /* garis pemisah hanya di kolom nilai */
@@ -1469,29 +1651,29 @@ function buildSKHTML(d){
       +'</tr>'
       /* NJOP Keseluruhan — BOLD */
       +'<tr>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding:2px 0">NJOP Keseluruhan</td>'
-        +'<td style="font-weight:normal;padding:2px 0">:</td>'
+        +'<td style="font-weight:bold;padding:2px 0">NJOP Keseluruhan</td>'
+        +'<td style="font-weight:bold;padding:2px 0">:</td>'
         +'<td colspan="4" style="padding:2px 0"></td>'
         +'<td style="text-align:right;font-weight:bold;font-size:13pt;padding:2px 0">'+fmtRp(d.tot)+'</td>'
       +'</tr>'
       /* Terbilang */
       +'<tr>'
-        +'<td style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding-top:4px;vertical-align:top">Terbilang</td>'
+        +'<td style="padding-top:4px;vertical-align:top">Terbilang</td>'
         +'<td style="padding-top:4px;vertical-align:top">:</td>'
-        +'<td colspan="5" style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;padding-top:4px;font-style:italic">'+d.terbilang+'</td>'
+        +'<td colspan="5" style="padding-top:4px;font-style:italic">'+d.terbilang+'</td>'
       +'</tr>'
     +'</table>'
  +'<div style="height:12px"></div>'
     /* ── PENUTUP — 1 enter di atas ────────────────────────────── */
-    +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal">'
+    +'<p style="'+S+'margin-top:1em;margin-bottom:1em;text-align:justify">'
       +'Demikian Surat Keterangan Pembetulan NJOP ini dibuat untuk dapat dipergunakan '
       +'seperlunya. Apabila di kemudian hari terdapat kekeliruan akan dibetulkan dan '
       +'ditinjau kembali sesuai dengan ketentuan yang berlaku.'
-    +'</div>'
+    +'</p>'
  +'<div style="height:12px"></div>'
     /* ── TANDA TANGAN ─────────────────────────────────────────── */
-    +'<div style="display:flex;justify-content:flex-end;padding-right:3px">'
-      +'<div style="font-family:&quot;Times New Roman&quot;,serif;font-size:12pt;font-weight:normal;width:350px;line-height:1.15">'
+    +'<div style="display:flex;justify-content:flex-end;padding-right:4px">'
+      +'<div style="'+S+'text-align:center;width:300px;line-height:1.5">'
         +'<div>Tabanan, '+d.tgl+'</div>'
         +'<div>An. Kepala Badan Keuangan Daerah</div>'
         +'<div>Kabupaten Tabanan</div>'
