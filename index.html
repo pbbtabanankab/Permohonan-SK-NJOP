@@ -43,12 +43,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn:hover{background:var(--bg)}
 .btn:active{transform:scale(.98)}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
-.btn-primary:hover{background:var(--blue-dark)}
-.btn-success{background:var(--green);border-color:var(--green);color:#fff}
-.btn-success:hover{background:#27500A}
-.btn-print{background:var(--amber);border-color:var(--amber);color:#fff}
-.btn-print:hover{background:#633806}
+.btn-primary{background:#C0392B;border-color:#C0392B;color:#fff}
+.btn-primary:hover{background:#922B21}
+.btn-success{background:#C0392B;border-color:#C0392B;color:#fff}
+.btn-success:hover{background:#922B21}
+.btn-print{background:#922B21;border-color:#922B21;color:#fff}
+.btn-print:hover{background:#7B241C}
 .btn-sm{padding:5px 12px;font-size:12px}
 .btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--border)}
 .alert{padding:10px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:1rem;border:1px solid;display:flex;align-items:center;gap:8px;line-height:1.5}
@@ -320,12 +320,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <p style="font-size:11px;color:var(--hint);margin-top:1rem;line-height:1.6">
         * Jika status <strong>Selesai</strong>, silakan datang ke kantor dengan membawa No Formulir dan dokumen asli untuk mengambil SK NJOP Anda.
       </p>
+      <div class="btn-row" style="margin-top:.75rem;padding-top:.75rem">
+        <button class="btn btn-print" onclick="printDraftFromStatus()">Cetak Draft Permohonan</button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- ===== PEMOHON ===== -->
-<div id="view-pemohon" class="main">
+<div id="view-pemohon" class="main" style="display:none">
   <div id="alert-p"></div>
   <div id="form-wrap">
     <div class="card">
@@ -372,7 +375,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <p style="font-size:12px;color:var(--muted);line-height:1.7;margin-top:.75rem">Harap <strong>cetak atau foto</strong> nomor formulir ini dan bawa bersama kelengkapan berkas ke kantor pelayanan.</p>
       <div class="btn-row no-print">
         <button class="btn btn-print" onclick="printReceipt()">Cetak Tanda Terima</button>
-        <button class="btn" style="background:#5b3fa6;border-color:#5b3fa6;color:#fff" onclick="printSuratPermohonan()">Cetak Surat Permohonan</button>
+        <button class="btn" style="background:#C0392B;border-color:#C0392B;color:#fff" onclick="printSuratPermohonan()">Cetak Surat Permohonan</button>
         <button class="btn btn-primary" onclick="resetForm()">Permohonan Baru</button>
       </div>
     </div>
@@ -846,9 +849,33 @@ function cekStatus(){
       document.getElementById('st-tgl').textContent    = d['Timestamp']    || '-';
       document.getElementById('st-nosurat').textContent= selesai ? (d['No Surat'] || '-') : 'Belum diterbitkan';
 
+      // Simpan data row untuk cetak draft
+      window._statusRow = d;
       document.getElementById('status-result').style.display = 'block';
     })
     .catch(function(e){ showAlert('s','danger','Gagal terhubung ke server: '+e.message); });
+}
+
+// ─── Cetak Draft dari Cek Status ────────────────────────
+function printDraftFromStatus(){
+  if(!window._statusRow){ alert('Cek status permohonan terlebih dahulu.'); return; }
+  var d = window._statusRow;
+  var draft = {
+    no       : d['No Formulir']   || '',
+    tgl      : d['Timestamp']     || new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}),
+    nama     : d['Nama Pemohon']  || '',
+    hp       : d['No HP']         || '',
+    alamat   : d['Alamat']        || '',
+    notaris  : d['Notaris']       || '',
+    nop      : d['NOP']           || '',
+    namawp   : d['Nama WP']       || '',
+    noshm    : d['No SHM/NIB']    || '',
+    luasbumi : d['Luas Bumi']     || '',
+    luasbangunan: d['Luas Bangunan'] || '',
+    alamatwp : d['Alamat WP']     || '',
+    alamatop : d['alamatop']      || ''
+  };
+  openPrintWindow(buildSuratPermohonanHTML(draft));
 }
 
 // ─── Alert ────────────────────────────────────────────────
@@ -1018,16 +1045,37 @@ function loadAllList() {
       if (!res.ok) { showAlert('t','danger', res.message); return; }
       var rows = res.rows;
       if (!rows.length) { showAlert('t','info','Belum ada permohonan.'); return; }
-      var html = '<div style="margin-top:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">' + rows.length + ' Permohonan</div>';
+
+      // Urutkan terbaru di atas
+      rows = rows.slice().reverse();
+      var total   = rows.length;
+      var sisanya = Math.max(0, total - 10);
+
+      var html = '<div style="margin-top:8px">'
+        + '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:700;'
+          + 'text-transform:uppercase;letter-spacing:.05em">'
+          + total + ' Permohonan'
+          + (sisanya > 0 ? ' &nbsp;·&nbsp; <span style="font-weight:400;text-transform:none">'
+            + 'Scroll untuk lihat semua</span>' : '')
+        + '</div>';
+
+      // Wrapper scroll
+      html += '<div style="max-height:500px;overflow-y:auto;padding-right:2px;scrollbar-width:thin">';
+
       rows.forEach(function(d) {
-        var sc = d['Status']==='Selesai' ? 'badge-green' : 'badge-amber';
+        var sc  = d['Status']==='Selesai' ? 'badge-green' : 'badge-amber';
         var enc = encodeURIComponent(JSON.stringify(d));
-        html += '<div class="list-item" onclick="loadWorkspace(JSON.parse(decodeURIComponent(\'' + enc + '\')))">'
-          + '<div><div class="list-item-main">' + d['No Formulir'] + '</div>'
-          + '<div class="list-item-sub">' + d['Nama Pemohon'] + ' &nbsp;|&nbsp; NOP: ' + d['NOP'] + ' &nbsp;|&nbsp; ' + d['Timestamp'] + '</div></div>'
-          + '<span class="badge ' + sc + '">' + d['Status'] + '</span></div>';
+        html += '<div class="list-item" onclick="loadWorkspace(JSON.parse(decodeURIComponent(\'' + enc + '\')))">'          + '<div><div class="list-item-main">' + d['No Formulir'] + '</div>'          + '<div class="list-item-sub">' + d['Nama Pemohon']          + ' &nbsp;|&nbsp; NOP: ' + d['NOP']          + ' &nbsp;|&nbsp; ' + d['Timestamp'] + '</div></div>'          + '<span class="badge ' + sc + '">' + d['Status'] + '</span></div>';
       });
+
+      html += '</div>'; // tutup scroll
+      if (sisanya > 0) {
+        html += '<div style="font-size:11px;color:var(--muted);text-align:center;'
+          + 'margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">'
+          + '↕ ' + sisanya + ' data sebelumnya tersedia dengan scroll</div>';
+      }
       html += '</div>';
+
       document.getElementById('list-wrap').innerHTML = html;
       document.getElementById('ws-wrap').style.display = 'none';
     })
