@@ -638,7 +638,7 @@ function apiCall(action, extraParams) {
 // ─── API URL — HARDCODED PERMANEN ─────────────────────────
 // Ganti nilai di bawah ini dengan URL Apps Script Anda.
 // Setelah diisi dan file di-upload ke hosting, tidak perlu diubah lagi.
-var API_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbwazCYE8h-aA4Y668iOoO2sfFxKGKTise4fdoxq66eO5fZKY7JXXM8NKIBinYZys53y/exec';
+var API_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbwzebonbJq_EPCUwdkdmWZrZ7ymmgrPkd0Zo_Srffh1uhVo8W1iCOFeApHUX8qz-01V/exec';
 
 // localStorage hanya dipakai jika admin ingin override sementara
 var API_URL = localStorage.getItem('njop_api_url') || API_URL_DEFAULT;
@@ -886,7 +886,7 @@ function clearAlert(z) { document.getElementById('alert-'+z).innerHTML = ''; }
 
 // ─── Field helpers ────────────────────────────────────────
 function g(id) { return (document.getElementById(id)||{}).value || ''; }
-function s(id, v) { var el = document.getElementById(id); if(el) el.value = v || ''; }
+function s(id, v) { var el = document.getElementById(id); if(el) el.value = (v !== undefined && v !== null) ? String(v) : ''; }
 
 // ─── Pejabat Default — HARDCODED, selalu sama ─────────────
 var PEJABAT = {
@@ -971,12 +971,12 @@ function submitPemohon() {
   var no  = genNo();
   var tgl = new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
   var payload = {
-    'No Formulir': no, 'Nama Pemohon': g('p-nama'), 'No HP': g('p-hp'),
-    'Alamat': g('p-alamat'), 'Notaris': g('p-notaris'), 'NOP': g('p-nop'),
+    'No Formulir': no, 'Nama Pemohon': g('p-nama'), 'No HP': String(g('p-hp')),
+    'Alamat': g('p-alamat'), 'Notaris': g('p-notaris'), 'NOP': String(g('p-nop')),
     'Nama WP': g('p-namawp'), 'Alamat WP': g('p-alamatwp'),
     'Luas Bumi': g('p-luasbumi'), 'Luas Bangunan': g('p-luasbangunan'),
     'NJOP Bumi':'', 'NJOP Bangunan':'', 'NJOP Keseluruhan':'', 'Terbilang':'',
-    'No SHM/NIB': g('p-noshm'), 'Nama Sertifikat': g('p-namasrt'),
+    'No SHM/NIB': String(g('p-noshm')), 'Nama Sertifikat': g('p-namasrt'),
     'Luas Sertifikat': g('p-luassrt'), 'No Surat':'',
     'Status':'Menunggu', 'Timestamp': tgl,
     'Nama Pejabat':'', 'NIP':'', 'Jabatan':'', 'Pangkat':'',
