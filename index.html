@@ -17,9 +17,9 @@
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 .app-header{background:var(--card);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.tab-switcher{display:flex;background:var(--bg);border-radius:var(--radius);padding:3px;gap:3px;border:1px solid var(--border)}
 .logo h1{font-size:14px;font-weight:600}
 .logo p{font-size:11px;color:var(--muted)}
-.tab-switcher{display:flex;background:var(--bg);border-radius:var(--radius);padding:3px;gap:3px;border:1px solid var(--border)}
 .tab-btn{padding:5px 16px;border:none;background:transparent;border-radius:6px;font-size:13px;cursor:pointer;color:var(--muted);font-family:inherit}
 .tab-btn.active{background:var(--card);color:var(--text);font-weight:600;border:1px solid var(--border)}
 .main{max-width:820px;margin:1.5rem auto;padding:0 1rem}
@@ -117,6 +117,63 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* Guncang input jika salah PIN */
 @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .shake{animation:shake .4s ease}
+@media(max-width:640px){
+  /* Header */
+  .app-header{padding:0 12px;gap:8px;flex-wrap:wrap;height:auto}
+  .logo p{display:none}
+  .logo h1{font-size:13px}
+  .app-header > div:last-child{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-top:1px solid var(--border);padding:4px 0}
+  .app-header > div:last-child::-webkit-scrollbar{display:none}
+  .tab-switcher{border:none;border-radius:0;background:transparent;padding:2px 0;flex-wrap:nowrap}
+  .tab-btn{padding:6px 11px;font-size:12px;white-space:nowrap;flex-shrink:0}
+
+  /* Admin chip di header */
+  .admin-chip{font-size:10px;padding:3px 8px 3px 5px}
+
+  /* Main content */
+  .main{padding:0 10px;margin:12px auto}
+
+  /* Cards */
+  .card{padding:1rem}
+
+  /* Form grids → single column */
+  .form-grid,.form-grid-3{grid-template-columns:1fr}
+  .span-full{grid-column:1}
+
+  /* Result grid (kalkulasi) */
+  .result{grid-template-columns:1fr;gap:6px;text-align:center}
+
+  /* Buttons */
+  .btn-primary,.btn-secondary,.btn-outline{width:100%;justify-content:center;text-align:center}
+  .action-row,.form-actions{flex-direction:column;gap:8px}
+  .action-row button,.form-actions button{width:100%}
+
+  /* Tabel - scroll horizontal */
+  .table-wrap,.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:480px}
+
+  /* Modal → bottom sheet */
+  .modal-bg{align-items:flex-end;padding:0}
+  .modal{border-radius:14px 14px 0 0;max-width:100%;width:100%;margin:0;max-height:90vh;overflow-y:auto}
+
+  /* Login modal tetap center */
+  .login-modal{border-radius:var(--radius-lg);margin:auto;max-width:92vw}
+
+  /* Summary stats grid */
+  [style*="grid-template-columns:repeat(3"],[style*="grid-template-columns: repeat(3"]{grid-template-columns:1fr 1fr !important}
+  [style*="grid-template-columns:repeat(4"],[style*="grid-template-columns: repeat(4"]{grid-template-columns:1fr 1fr !important}
+
+  /* Inline style grids untuk section hasil/ringkasan */
+  .card [style*="display:grid"]{grid-template-columns:1fr !important}
+}
+
+/* Tambahan untuk layar sangat kecil */
+@media(max-width:380px){
+  .tab-btn{padding:5px 9px;font-size:11px}
+  .card{padding:.75rem}
+  .main{padding:0 8px}
+}
+
 @media print{
   .app-header,.tab-switcher,.no-print{display:none!important}
   body{background:#fff;margin:0;padding:0}
